@@ -35,13 +35,14 @@ exports.login = async (req, res, next) => {
 // user signup logics comes here
 exports.signup = async (req, res, next) => {
   try {
-    let { email, password: passwordd, mobileNo, username } = req.body;
+    let { email, password: passwordd, mobileNo, username,role } = req.body;
     if (!email)
       return res.status(400).json({ error: "Please provide a email" });
     if (!passwordd)
       return res.status(400).json({ error: "Please provide a password" });
     if (!mobileNo)
       return res.status(400).json({ error: "Please provide a mobile" });
+    if(!role) role = 0;
     // if(validRegex.match(email)) return res.status(400).json({error:"Please provide a valid email address"});
 
     let isExists = await User.findOne({ $or: [{ email }, { username }] });
@@ -54,6 +55,7 @@ exports.signup = async (req, res, next) => {
       mobileNo,
       userId,
       username,
+      role
     });
     let result = await UserSave.save();
     const { password, ...data } = result._doc;
