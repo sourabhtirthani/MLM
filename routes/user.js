@@ -8,6 +8,7 @@ const userIncome = require("../controllers/users/userIncome");
 const userWithdraw = require("../controllers/users/userWithdraw");
 const userTransactions = require("../controllers/users/userstransactions");
 const errorHandler = require("../middlewares/errorHandler");
+const verifyToken = require("../helpers/verifyToken");
 
 // Sign-up for user
 router.post("/signup", errorHandler,userRegistration.signup);
@@ -26,24 +27,27 @@ router.post("/logout", userRegistration.logout);
 
 //============================================== USERS DEPOSITE ==========================================
 // all deposite
-router.get("/all", userDeposite.allDeposite);
+router.get("/all",verifyToken, userDeposite.allDeposite);
+
+// user deposite request
+router.post("/requestDesposit",verifyToken, userDeposite.requestDeposit);
 
 // approve Deposite
-router.get("/approveDeposite", userDeposite.approveDeposite);
+router.get("/approveDeposite",verifyToken, userDeposite.approveDeposite);
 
 // pending Deposite
-router.get("/pendingDeposite", userDeposite.pendingDeposite);
+router.get("/pendingDeposite",verifyToken, userDeposite.pendingDeposite);
 
 // reject Deposite
-router.get("/rejectDeposite", userDeposite.rejectDeposite);
+router.get("/rejectDeposite",verifyToken, userDeposite.rejectDeposite);
 
 //=========================================== USERS Investment ===========================================
 
 // investment
-router.post("/investment", userInvestment.investment);
+router.post("/investment",verifyToken, userInvestment.investment);
 
 // investment History
-router.get("/investmentHistory", userInvestment.investmentHistory);
+router.get("/investmentHistory",verifyToken, userInvestment.investmentHistory);
 
 //=========================================== USERS Fund Trnasfer ===========================================
 
