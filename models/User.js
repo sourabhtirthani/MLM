@@ -8,7 +8,7 @@ const Users = new mongoose.Schema(
     username: { type: String, required: true, unique: true },
     userId: { type: String, required: true, unique: true },
     isInvested: { type: Boolean, default: false },
-    mainWallet: { type: Number, default: 0 },
+    mainWallet: { type: Number, default: 0 }, 
     otp:{type:String,require:false},
     investmentWallet: { type: Number, default: 0 },
     isEmailVerified:{type:Boolean,default:false},
