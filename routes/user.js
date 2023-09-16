@@ -7,18 +7,19 @@ const userSection = require("../controllers/users/usersSection");
 const userIncome = require("../controllers/users/userIncome");
 const userWithdraw = require("../controllers/users/userWithdraw");
 const userTransactions = require("../controllers/users/userstransactions");
+const errorHandler = require("../middlewares/errorHandler");
 
 // Sign-up for user
-router.post("/signup", userRegistration.signup);
+router.post("/signup", errorHandler,userRegistration.signup);
 
 // sign in for user
-router.post("/signin", userRegistration.login);
+router.post("/signin", errorHandler,userRegistration.login);
 
 // forgot password
-router.post("/forgot", userRegistration.forgotPassword);
+router.post("/forgot", errorHandler,userRegistration.forgotPassword);
 
 // reset password
-router.post("/reset", userRegistration.reset);
+router.post("/reset", errorHandler,userRegistration.reset);
 
 // logout
 router.post("/logout", userRegistration.logout);
