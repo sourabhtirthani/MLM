@@ -11,43 +11,43 @@ const errorHandler = require("../middlewares/errorHandler");
 const verifyToken = require("../helpers/verifyToken");
 
 // Sign-up for user
-router.post("/signup", errorHandler,userRegistration.signup);
+router.post("/signup", errorHandler, userRegistration.signup);
 
 // sign in for user
-router.post("/signin", errorHandler,userRegistration.login);
+router.post("/signin", errorHandler, userRegistration.login);
 
 // forgot password
-router.post("/forgot", errorHandler,userRegistration.forgotPassword);
+router.post("/forgot", errorHandler, userRegistration.forgotPassword);
 
 // reset password
-router.post("/reset", errorHandler,userRegistration.reset);
+router.post("/reset", errorHandler, userRegistration.reset);
 
 // logout
 router.post("/logout", userRegistration.logout);
 
 //============================================== USERS DEPOSITE ==========================================
 // all deposite
-router.get("/all",verifyToken, userDeposite.allDeposite);
+router.get("/all", verifyToken, userDeposite.allDeposite);
 
 // user deposite request
-router.post("/requestDesposit",verifyToken, userDeposite.requestDeposit);
+router.post("/requestDesposit", verifyToken, userDeposite.requestDeposit);
 
 // approve Deposite
-router.get("/approveDeposite",verifyToken, userDeposite.approveDeposite);
+router.get("/approveDeposite", verifyToken, userDeposite.approveDeposite);
 
 // pending Deposite
-router.get("/pendingDeposite",verifyToken, userDeposite.pendingDeposite);
+router.get("/pendingDeposite", verifyToken, userDeposite.pendingDeposite);
 
 // reject Deposite
-router.get("/rejectDeposite",verifyToken, userDeposite.rejectDeposite);
+router.get("/rejectDeposite", verifyToken, userDeposite.rejectDeposite);
 
 //=========================================== USERS Investment ===========================================
 
 // investment
-router.post("/investment",verifyToken, userInvestment.investment);
+router.post("/investment", verifyToken, userInvestment.investment);
 
 // investment History
-router.get("/investmentHistory",verifyToken, userInvestment.investmentHistory);
+router.get("/investmentHistory", verifyToken, userInvestment.investmentHistory);
 
 //=========================================== USERS Fund Trnasfer ===========================================
 

@@ -1,10 +1,13 @@
 const { json } = require("body-parser");
 const User = require("../../models/User");
+const investment = require("../../models/Investment");
 
 //users investment
 exports.investment = async (req, res, next) => {
   try {
-    let { userId, amount, investerId } = req.body;
+    let { userId, amount } = req.body;
+    let investerId = req.user.user;
+    investerId = user.userId;
     if (!userId)
       return res.status(404).json({ error: "Please Provide User id" });
     if (!investerId)
@@ -14,14 +17,21 @@ exports.investment = async (req, res, next) => {
         .status(400)
         .json({ error: "Investment Amount Must be Grater than zero" });
 
-    let isExistsUserId = await User.findOne({userId});
+    let isExistsUserId = await User.findOne({ userId });
+    let isExistsInvesterId = await User.findOne({ userId: investerId });
+
     if (!isExistsUserId)
       return res.status(400).json({ error: "UserId Not Found" });
-    
-    let isExistsInvesterId = await User.findOne({ investerId });
     if (!isExistsInvesterId)
       return res.status(400).json({ error: "invester Id Not Found" });
-    
+
+    const invest = new investment({
+      userId,
+      investerId,
+      amount,
+    });
+    let result = await invest.save();
+    return res.status(200).json({ message: "invested successfully", result });
   } catch (error) {
     console.log(error, " errrrr");
     next(error);
@@ -29,4 +39,11 @@ exports.investment = async (req, res, next) => {
 };
 
 // return the investment history
-exports.investmentHistory = (req, res) => {};
+exports.investmentHistory = async (req, res) => {
+  //   let user = req.user.user;
+  //   user = user.userId;
+  const { userId } = req.body;
+  let result = await investment.find({ userId });
+
+  res.status(200).json({ result });
+};
