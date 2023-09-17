@@ -1,14 +1,14 @@
 const mongoose = require("mongoose");
 
-const investments = new mongoose.Schema(
+const newinvestments = new mongoose.Schema(
   {
     userId: { type: String, require: true },
-    investerId: { type: String, require: true },
     amount: { type: Number, require: true },
+    rewards: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
 
-const investment = mongoose.model("investment", investments);
+const newinvest = mongoose.model("newinvestment", newinvestments);
 
-module.exports = investment;
+module.exports = newinvest;
