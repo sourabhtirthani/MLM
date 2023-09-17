@@ -13,7 +13,8 @@ exports.login = async (req, res,next) => {
         if(!email) return res.status(400).json({error:"Please provide a email"});
         if(!password) return res.status(400).json({error:"Please provide a password"});
         let isExists = await User.findOne({$or:[{email},{username}]});
-        if(!isExists) return res.status(400).json({error:"User Not Found"});        
+        if(!isExists) return res.status(400).json({error:"User Not Found"});    
+        if(isExists.block == true) return res.status(400).json({error:"You are blocked please contact with admin"});
         const isAuthUser = await decryptPassword(password, isExists.password);
         if(isAuthUser){
             let { password, ...data } = isExists._doc;
@@ -126,3 +127,28 @@ exports.reset = async (req, res) => {
 
 // users logout comes here
 exports.logout = (req, res) => {};
+
+// block user
+exports.blockUser = async (req,res,next) => {
+    try{
+        let {userId,isBlock} = req.body;
+        let user = req.user.user;
+        if(!user) return res.status(400).json({error:"Please provide a authenticate token"});
+        if(!userId) return res.status(400).json({error:"Please provide a userId"});
+        if(!isBlock) return res.status(400).json({error:"Please provide a block status"});
+        let isExists = await User.findOne({userId});
+        if(!isExists) return res.status(400).json({error:"User Not Found"});
+
+        if(user.role != 1) return res.status(400).json({error:"Only admin can perform this action"});
+
+        let block = await User.findOneAndUpdate({userId},{block:true});
+        if(block){
+            return res.status(200).json({message:"Block status updated"});
+        }else{
+            return res.status(400).json({error:"Internel Server Error"});
+        }
+    }catch(error){
+        console.log(error);
+        next(error);
+    }
+}

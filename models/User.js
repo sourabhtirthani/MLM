@@ -14,7 +14,8 @@ const Users = new mongoose.Schema(
     investmentWallet: { type: Number, default: 0 },
     isEmailVerified:{type:Boolean,default:false},
     token:{type:String,required:false},
-    role:{type:Number,default:0}
+    role:{type:Number,default:0},
+    block:{type:Boolean,default:false}
   },
   { timestamps: true }
 );

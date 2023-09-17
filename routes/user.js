@@ -39,40 +39,43 @@ router.post("/forgot", errorHandler, userRegistration.forgotPassword);
 // reset password
 router.post("/reset", errorHandler, userRegistration.reset);
 
+// block user
+router.post("/block",[errorHandler,verifyToken], userRegistration.blockUser)
+
 // logout
 router.post("/logout", userRegistration.logout);
 
 //============================================== USERS DEPOSITE ==========================================
 // all deposite
-router.get("/all", verifyToken, userDeposite.allDeposite);
+router.get("/all", [errorHandler,verifyToken], userDeposite.allDeposite);
 
 // user deposite request
-router.post("/requestDesposit",[upload.fields([{ name: 'attachment', maxCount: 1 }]),verifyToken], userDeposite.requestDeposit);
+router.post("/requestDesposit",[upload.fields([{ name: 'attachment', maxCount: 1 }]),verifyToken,errorHandler], userDeposite.requestDeposit);
 
 // approve Deposite
-router.get("/approveDeposite",verifyToken, userDeposite.approveDeposite);
+router.get("/approveDeposite",[verifyToken,errorHandler], userDeposite.approveDeposite);
 
 // pending Deposite
-router.get("/pendingDeposite", verifyToken, userDeposite.pendingDeposite);
+router.get("/pendingDeposite", [verifyToken,errorHandler], userDeposite.pendingDeposite);
 
 // reject Deposite
-router.post("/rejectDeposite", verifyToken, userDeposite.rejectDeposite);
+router.post("/rejectDeposite", [verifyToken,errorHandler], userDeposite.rejectDeposite);
 
 //=========================================== USERS Investment ===========================================
 
 // investment
-router.post("/investment", verifyToken, userInvestment.investment);
+router.post("/investment", [verifyToken,errorHandler], userInvestment.investment);
 
 // investment History
-router.get("/investmentHistory", verifyToken, userInvestment.investmentHistory);
+router.get("/investmentHistory", [verifyToken,errorHandler], userInvestment.investmentHistory);
 
 //=========================================== USERS Fund Trnasfer ===========================================
 
 // Fund Trnasfer
-router.post("/fundTrnasfer", verifyToken ,userFundTransfer.fundTransfer);
+router.post("/fundTrnasfer", [verifyToken,errorHandler] ,userFundTransfer.fundTransfer);
 
 // fund Trnasfer History
-router.get("/fundTrnasferHistory",verifyToken , userFundTransfer.fundTransferHistory);
+router.get("/fundTrnasferHistory",[verifyToken,errorHandler] , userFundTransfer.fundTransferHistory);
 
 //=========================================== USERS SECTION ===========================================
 
