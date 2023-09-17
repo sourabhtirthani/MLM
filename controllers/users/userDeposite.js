@@ -92,4 +92,26 @@ exports.approveDeposite = async (req, res,next) => {
 exports.pendingDeposite = (req, res) => {};
 
 //rejected deposite comes here
-exports.rejectDeposite = (req, res) => {};
+exports.rejectDeposite = async (req, res,next) => {
+    try{
+        let {depositId} = req.body;
+        if(!depositId) return res.status(400).json({error:"Please provide deposit id"});
+        let user = req.user.user;
+        if(user.role != 1) return res.status(400).json({error:"Only admin can perform this action"});
+        let request = await Deposit.findOne({_id:depositId});
+        
+        if(request){
+            if(request.status == 2) return res.status(400).json({error:"Request already Rejected"});
+            let updateRequest = await Deposit.findOneAndUpdate({_id:{$eq:depositId}},{$set : {status:2}});
+            if(updateRequest){
+                return res.status(200).json({message:"Request Rejected"});
+            }else{
+                return res.status(400).json({error:"Internel Server Error"});
+            }
+        }else{
+            return res.status(400).json({error:"Request Not Found"});
+        }
+    }catch(error){
+        next(error);
+    }
+};

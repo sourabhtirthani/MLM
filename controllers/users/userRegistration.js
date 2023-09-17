@@ -30,7 +30,7 @@ exports.login = async (req, res,next) => {
 // user signup logics comes here
 exports.signup = async (req, res, next) => {
   try {
-    let { email, password: passwordd, mobileNo, username, refferalCode } = req.body;
+    let { email, password: passwordd, mobileNo, username, refferalCode,role } = req.body;
     if (!email)
       return res.status(400).json({ error: "Please provide a Email" });
     if (!passwordd)
@@ -47,7 +47,8 @@ exports.signup = async (req, res, next) => {
 
     let isExists = await User.findOne({ $or: [{ email }, { username }] });
     if (isExists) return res.status(400).json({ error: "User already Exists" });
-
+    let roleId = role; 
+    if(!roleId) roleId = 0;
 
     let encrptPass = await encryptPassword(passwordd);
     let userId = generateRandomID();
@@ -57,6 +58,7 @@ exports.signup = async (req, res, next) => {
       mobileNo,
       userId,
       username,
+      role:roleId,
       refferBy:refferalCode
     });
     let result = await UserSave.save();

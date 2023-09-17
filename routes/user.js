@@ -56,7 +56,7 @@ router.get("/approveDeposite",verifyToken, userDeposite.approveDeposite);
 router.get("/pendingDeposite", verifyToken, userDeposite.pendingDeposite);
 
 // reject Deposite
-router.get("/rejectDeposite", verifyToken, userDeposite.rejectDeposite);
+router.post("/rejectDeposite", verifyToken, userDeposite.rejectDeposite);
 
 //=========================================== USERS Investment ===========================================
 
@@ -69,10 +69,10 @@ router.get("/investmentHistory", verifyToken, userInvestment.investmentHistory);
 //=========================================== USERS Fund Trnasfer ===========================================
 
 // Fund Trnasfer
-router.post("/fundTrnasfer", userFundTransfer.fundTransfer);
+router.post("/fundTrnasfer", verifyToken ,userFundTransfer.fundTransfer);
 
 // fund Trnasfer History
-router.get("/fundTrnasferHistory", userFundTransfer.fundTransferHistory);
+router.get("/fundTrnasferHistory",verifyToken , userFundTransfer.fundTransferHistory);
 
 //=========================================== USERS SECTION ===========================================
 
