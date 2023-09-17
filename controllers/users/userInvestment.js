@@ -7,7 +7,7 @@ exports.investment = async (req, res, next) => {
   try {
     let { userId, amount } = req.body;
     let investerId = req.user.user;
-    investerId = user.userId;
+    investerId = investerId.userId;
     if (!userId)
       return res.status(404).json({ error: "Please Provide User id" });
     if (!investerId)
@@ -40,10 +40,8 @@ exports.investment = async (req, res, next) => {
 
 // return the investment history
 exports.investmentHistory = async (req, res) => {
-  //   let user = req.user.user;
-  //   user = user.userId;
-  const { userId } = req.body;
+  let userId = req.user.user;
+  userId = user.userId;
   let result = await investment.find({ userId });
-
   res.status(200).json({ result });
 };
