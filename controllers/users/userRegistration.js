@@ -4,6 +4,7 @@ const { encryptPassword, decryptPassword } = require("../../helpers/authenticati
 const generateRandomID = require("../../helpers/generateRandomId");
 const User = require("../../models/User");
 const sendMail = require("../../helpers/sendMail");
+const { validRegex } = require("../../constants");
 
 // user login logic comes here
 exports.login = async (req, res,next) => {
@@ -29,17 +30,25 @@ exports.login = async (req, res,next) => {
 // user signup logics comes here
 exports.signup = async (req, res, next) => {
   try {
-    let { email, password: passwordd, mobileNo, username } = req.body;
+    let { email, password: passwordd, mobileNo, username, refferalCode } = req.body;
     if (!email)
-      return res.status(400).json({ error: "Please provide a email" });
+      return res.status(400).json({ error: "Please provide a Email" });
     if (!passwordd)
-      return res.status(400).json({ error: "Please provide a password" });
+      return res.status(400).json({ error: "Please provide a Password" });
     if (!mobileNo)
-      return res.status(400).json({ error: "Please provide a mobile" });
-    // if(validRegex.match(email)) return res.status(400).json({error:"Please provide a valid email address"});
+      return res.status(400).json({ error: "Please provide a Mobile" });
+      if (!refferalCode)
+      return res.status(400).json({ error: "Please provide a Refferal Code" });
+    if(!validRegex.test(email)) return res.status(400).json({error:"Please provide a valid email address"});
+
+    // CHECK REFFERAL CODE EXISTS
+    let isRefferalExists = await User.findOne({userId:refferalCode});
+    if(!isRefferalExists)  return res.status(400).json({error:"Refferal Code invalid"});
 
     let isExists = await User.findOne({ $or: [{ email }, { username }] });
     if (isExists) return res.status(400).json({ error: "User already Exists" });
+
+
     let encrptPass = await encryptPassword(passwordd);
     let userId = generateRandomID();
     let UserSave = new User({
@@ -48,6 +57,7 @@ exports.signup = async (req, res, next) => {
       mobileNo,
       userId,
       username,
+      refferBy:refferalCode
     });
     let result = await UserSave.save();
     const { password, ...data } = result._doc;
