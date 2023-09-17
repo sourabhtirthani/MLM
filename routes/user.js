@@ -47,7 +47,7 @@ router.post("/logout", userRegistration.logout);
 router.get("/all", verifyToken, userDeposite.allDeposite);
 
 // user deposite request
-router.post("/requestDesposit",verifyToken, userDeposite.requestDeposit);
+router.post("/requestDesposit",[upload.fields([{ name: 'attachment', maxCount: 1 }]),verifyToken], userDeposite.requestDeposit);
 
 // approve Deposite
 router.get("/approveDeposite",verifyToken, userDeposite.approveDeposite);
