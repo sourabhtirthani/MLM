@@ -13,6 +13,7 @@ exports.investment = async (req, res, next) => {
       return res.status(404).json({ error: "Please Provide User id" });
     if (!investerId)
       return res.status(404).json({ error: "Please Provide Invester id" });
+    
     let isExistsUserId = await User.findOne({ userId });
     let isExistsInvesterId = await User.findOne({ userId: investerId });
 
@@ -30,24 +31,22 @@ exports.investment = async (req, res, next) => {
     let isAlreadyInvested = await investment.findOne({ userId });
     if (isAlreadyInvested) {
       let rewards = await calclulateRewads(userId);
-      console.log("rewards", rewards);
-      //   const updatedDATA = {
-      //     amount: isAlreadyInvested.amount + amount,
-      //     rewards: rewards,
-      //   };
-      //   let result = await investment.updateOne(
-      //     { userId },
-      //     { $set: updatedDATA }
-      //   );
-      //   console.log("result", result);
+      const updatedDATA = {
+        amount: isAlreadyInvested.amount + amount,
+        rewards: rewards,
+      };
+      await investment.updateOne({ userId }, { $set: updatedDATA });
     } else {
       // insert code
       const newInvestment = new investment({
         userId,
         amount,
       });
-      let newResult = await newInvestment.save();
-      console.log("newResult", newResult);
+      await newInvestment.save();
+      const updatedDATA = {
+        isInvested: true,
+      };
+      await User.updateOne({ userId }, { $set: updatedDATA });
     }
 
     const invest = new investmentHistory({

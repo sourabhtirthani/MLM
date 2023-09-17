@@ -99,10 +99,10 @@ router.get("/level-Income", userIncome.claclulateLEVEL);
 //=========================================== USERS Withdraw ===========================================
 
 //withdraw request
-router.post("/withdraw", userWithdraw.withdrawal);
+router.post("/withdraw", [verifyToken,errorHandler]  ,userWithdraw.withdrawal);
 
 // withdraw history
-router.get("/withdrawHistory", userWithdraw.withdrwalHistory);
+router.get("/withdrawHistory", [verifyToken,errorHandler]  ,userWithdraw.withdrwalHistory);
 
 //=========================================== USERS trnasactions ===========================================
 
