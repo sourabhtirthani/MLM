@@ -27,28 +27,35 @@ exports.login = async (req, res,next) => {
 };
 
 // user signup logics comes here
-exports.signup = async (req, res,next) => {
-    try{
-        let {email,password:passwordd,mobileNo,username} = req.body;
-        if(!email) return res.status(400).json({error:"Please provide a email"});
-        if(!passwordd) return res.status(400).json({error:"Please provide a password"});
-        if(!mobileNo) return res.status(400).json({error:"Please provide a mobile"});
-        // if(validRegex.match(email)) return res.status(400).json({error:"Please provide a valid email address"});
+exports.signup = async (req, res, next) => {
+  try {
+    let { email, password: passwordd, mobileNo, username } = req.body;
+    if (!email)
+      return res.status(400).json({ error: "Please provide a email" });
+    if (!passwordd)
+      return res.status(400).json({ error: "Please provide a password" });
+    if (!mobileNo)
+      return res.status(400).json({ error: "Please provide a mobile" });
+    // if(validRegex.match(email)) return res.status(400).json({error:"Please provide a valid email address"});
 
-        let isExists = await User.findOne({$or:[{email},{username}]});
-        if(isExists) return res.status(400).json({error:"User already Exists"});
-        let encrptPass = await encryptPassword(passwordd);
-        let userId = generateRandomID();
-        let UserSave = new User({
-            email,password:encrptPass,mobileNo,userId,username
-        })
-        let result = await UserSave.save();
-        const {password,...data} = result._doc;
-        return res.status(200).json({message:"Registered successfully",data});
-    }catch(error){
-        console.log(error, " errrrr");
-        next(error);
-    }
+    let isExists = await User.findOne({ $or: [{ email }, { username }] });
+    if (isExists) return res.status(400).json({ error: "User already Exists" });
+    let encrptPass = await encryptPassword(passwordd);
+    let userId = generateRandomID();
+    let UserSave = new User({
+      email,
+      password: encrptPass,
+      mobileNo,
+      userId,
+      username,
+    });
+    let result = await UserSave.save();
+    const { password, ...data } = result._doc;
+    return res.status(200).json({ message: "Registered successfully", data });
+  } catch (error) {
+    console.log(error, " errrrr");
+    next(error);
+  }
 };
 
 //user forgot password comes here

@@ -8,7 +8,24 @@ const userIncome = require("../controllers/users/userIncome");
 const userWithdraw = require("../controllers/users/userWithdraw");
 const userTransactions = require("../controllers/users/userstransactions");
 const errorHandler = require("../middlewares/errorHandler");
-const verifyToken = require("../helpers/verifyToken");
+const verifyToken = require("../middlewares/verifyToken");
+const path = require('path');
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+    destination: (req, file, callback) => callback(null, './public/uploads'),
+    filename: (req, file, callback) => {
+        const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(file.originalname)}`;
+        callback(null, uniqueName);
+    }
+});
+
+let upload = multer({
+    storage,
+    limit: {
+        fileSize: 1000000 * 100
+    }
+});
 
 // Sign-up for user
 router.post("/signup", errorHandler, userRegistration.signup);
@@ -30,10 +47,10 @@ router.post("/logout", userRegistration.logout);
 router.get("/all", verifyToken, userDeposite.allDeposite);
 
 // user deposite request
-router.post("/requestDesposit", verifyToken, userDeposite.requestDeposit);
+router.post("/requestDesposit",verifyToken, userDeposite.requestDeposit);
 
 // approve Deposite
-router.get("/approveDeposite", verifyToken, userDeposite.approveDeposite);
+router.get("/approveDeposite",verifyToken, userDeposite.approveDeposite);
 
 // pending Deposite
 router.get("/pendingDeposite", verifyToken, userDeposite.pendingDeposite);

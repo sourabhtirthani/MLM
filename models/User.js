@@ -12,7 +12,8 @@ const Users = new mongoose.Schema(
     otp:{type:String,require:false},
     investmentWallet: { type: Number, default: 0 },
     isEmailVerified:{type:Boolean,default:false},
-    token:{type:String,required:false}
+    token:{type:String,required:false},
+    role:{type:Number,default:0}
   },
   { timestamps: true }
 );
