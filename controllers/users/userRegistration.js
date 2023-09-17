@@ -5,6 +5,7 @@ const generateRandomID = require("../../helpers/generateRandomId");
 const User = require("../../models/User");
 const sendMail = require("../../helpers/sendMail");
 const { validRegex } = require("../../constants");
+const { findOneAndUpdate } = require("../../models/Transfer");
 
 // user login logic comes here
 exports.login = async (req, res,next) => {
@@ -62,7 +63,9 @@ exports.signup = async (req, res, next) => {
       role:roleId,
       refferBy:refferalCode
     });
+
     let result = await UserSave.save();
+    let addRefferalTo = await User.findOneAndUpdate({userId:refferalCode},{$push:{"refferedTo":refferalCode}});
     const { password, ...data } = result._doc;
     return res.status(200).json({ message: "Registered successfully", data });
   } catch (error) {
