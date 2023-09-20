@@ -70,6 +70,9 @@ const calclulateMembers = async (userId) => {
   let members = {};
   let userInfo = await User.findOne({ userId });
   if (userInfo.isInvested) {
+    for(let i=0;i<userInfo.refferedTo.length;i++){
+      
+    }
   } else return members;
 };
 module.exports = calclulateRewads;

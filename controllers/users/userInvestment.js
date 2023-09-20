@@ -8,12 +8,12 @@ exports.investment = async (req, res, next) => {
   try {
     let { userId, amount } = req.body;
     let invester = req.user.user;
-    investerId = invester.userId;
+    let investerId = invester.userId;
     if (!userId)
       return res.status(404).json({ error: "Please Provide User id" });
     if (!investerId)
       return res.status(404).json({ error: "Please Provide Invester id" });
-    
+
     let isExistsUserId = await User.findOne({ userId });
     let isExistsInvesterId = await User.findOne({ userId: investerId });
 
