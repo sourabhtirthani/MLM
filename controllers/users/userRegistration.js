@@ -155,3 +155,50 @@ exports.blockUser = async (req,res,next) => {
         next(error);
     }
 }
+
+// edit user
+exports.editUser = async(req,res,next) => {
+    try{
+        let user = req.user.user;
+        let {username} = req.body;
+        if(!username) return res.status(400).json({error:"Please provide a username"});
+        let isExists = await User.findOne({userId:user.userId});
+        if(!isExists) return res.status(400).json({error:"User Not Found"});
+        let isUserNameExist = await User.find({"username":{$eq:username,$ne:isExists.username}});
+        if(isUserNameExist.length > 0) return res.status(400).json({error:"Username Already Exists"});
+        let update = await User.updateOne({"userId":{$eq:user.userId}},{$set:{"username":username}});
+        if(update){
+            return res.status(200).json({message:"Profile updated successfully"});
+        }else{
+            return res.status(400).json({error:"Internel Server Error"});
+        }
+    }catch(error){
+        next(error);
+    }
+}
+
+// user details
+exports.userDetail = async (req,res,next) => {
+    try{
+        let user = req.user.user;        
+        let result = await User.findOne({userId:user.userId});
+        if(!result) return res.status(400).json({error:"User Not Found"});
+        return res.status(200).json({result});
+    }catch(error){
+        next(error);
+    }
+}
+
+// user detail by id
+exports.userDetailById = async (req,res,next) => {
+    try{        
+        let {userId} = req.body;
+        if(!userId) return res.status(400).json({error:"Please provide a user Id"});
+        let result = await User.findOne({userId});
+        if(!result) return res.status(400).json({error:"User Not Found"});
+        let {username,...data} = result;
+        return res.status(200).json({result:username});
+    }catch(error){
+        next(error);
+    }
+}

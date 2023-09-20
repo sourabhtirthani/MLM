@@ -43,6 +43,15 @@ router.post("/reset", errorHandler, userRegistration.reset);
 // block user
 router.post("/block",[errorHandler,verifyToken], userRegistration.blockUser)
 
+// edit user
+router.post("/editUser",[errorHandler,verifyToken], userRegistration.editUser)
+
+// user detail
+router.get("/userDetail",[errorHandler,verifyToken], userRegistration.userDetail);
+
+// user detai by id
+router.post("/userDetailById",errorHandler, userRegistration.userDetailById);
+
 // logout
 router.post("/logout", userRegistration.logout);
 
