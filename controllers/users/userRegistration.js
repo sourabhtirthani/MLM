@@ -202,3 +202,41 @@ exports.userDetailById = async (req,res,next) => {
         next(error);
     }
 }
+
+// send otp
+exports.sendOtp = async (req,res,next) => {
+    try{
+        let {email} = req.body;
+        let result = await User.findOne({email});
+        if(!result) return res.status(400).json({error:"User Not Registered"});
+        const otp = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+        let update = await User.updateOne({"email":{$eq:email}},{$set:{"otp":otp}});
+        let { message } = require("../../templates/otp.js");
+        await sendMail('verification Mail', message(otp), email);
+        if(update){
+            return res.status(200).json({message:"Please check your mail"});
+        }else{
+            return res.status(400).json({error:"Internel Server Error"});
+        }
+    }catch(err){
+     next(err);
+    }
+}
+
+exports.verifyOtp = async (req,res,next) => {
+    try{
+        let {otp,email} = req.body;
+        if(!otp) return res.status(400).json({error:"Please provide OTP"});
+        if(!email) return res.status(400).json({error:"Please provide email"});
+        let result = await User.findOne({email,otp});
+        if(!result) return res.status(400).json({error:"Invalid OTP"});
+        let update = await User.updateOne({"email":{$eq:email}},{$set:{"otp":""}});
+        if(update){
+            return res.status(200).json({message:"Verified OTP"});
+        }else{
+            return res.status(400).json({error:"Internel Server Error"});
+        }
+    }catch(err){
+        next(err);
+    }
+}

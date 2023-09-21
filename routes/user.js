@@ -52,6 +52,12 @@ router.get("/userDetail",[errorHandler,verifyToken], userRegistration.userDetail
 // user detai by id
 router.post("/userDetailById",errorHandler, userRegistration.userDetailById);
 
+// send otp
+router.post("/sendotp",errorHandler, userRegistration.sendOtp);
+
+// verify otp
+router.post("/verifyotp",errorHandler,userRegistration.verifyOtp);
+
 // logout
 router.post("/logout", userRegistration.logout);
 

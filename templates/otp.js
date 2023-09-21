@@ -38,13 +38,13 @@ const message = (OTP) => {
                           </tr> 
                           <tr>
                             <td style="padding-top: 20px;padding-bottom: 10px; padding-left: 15px; padding-right: 20px; text-align: center;"  valign="top" class="subTitle">
-                              <h4 class="text" style=" color:#fff;font-family:'Nunito';font-size:25px;font-weight:700;font-style:normal;letter-spacing:normal;line-height:34px;text-transform:none;text-align:center;padding:0;margin:0">Thank you for Login on our website, Welcome to the Mipay wallet family. </h4>
+                              <h4 class="text" style=" color:#fff;font-family:'Nunito';font-size:25px;font-weight:700;font-style:normal;letter-spacing:normal;line-height:34px;text-transform:none;text-align:center;padding:0;margin:0">OTP verification mail. </h4>
                             </td>
                           </tr>                         
                           <tr>
                             <td style="padding-top: 0px;padding-bottom: 10px; padding-left: 15px; padding-right: 20px; text-align: left;"  valign="top" class="subTitle">
                               <h6 class="text" style=" color:#fff;font-family:'Nunito';font-size:15px;font-weight:600;font-style:normal;letter-spacing:1px;line-height:24px;text-transform:none;text-align:center;padding:0;margin:0">
-                                Your OTP is <span style="font-size:25px;letter-spacing:3px;"> ${OTP} </span> for secure Login
+                                Your OTP is <span style="font-size:25px;letter-spacing:3px;"> ${OTP} </span> for Authentication
                                </h6>
                             </td>
                           </tr>
