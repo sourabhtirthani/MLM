@@ -1,7 +1,7 @@
 const { json } = require("body-parser");
 const User = require("../../models/User");
 const Withdraw = require("../../models/withdrawal");
-const calclulateRewads = require("../../helpers/calclulateRewards");
+const {calclulateRewads} = require("../../helpers/calclulateRewards");
 // post request for withdraw amout
 exports.withdrawal = async (req, res, next) => {
   try {

@@ -1,5 +1,6 @@
 const investment = require("../models/Investment");
 const User = require("../models/User");
+const withdraw = require("../models/withdrawal");
 const calclulateRewads = async (userId) => {
   let userInfo = await investment.findOne({ userId });
 
@@ -50,7 +51,7 @@ const CalclulateLevelIncome = async (userId) => {
             for (let k = 0; k < memberInfo2.refferedTo.length; k++) {
               member3 = memberInfo2.refferedTo[k];
               memberInfo3 = await User.findOne({ member3 });
-              if (memberInfo2.isInvested) {
+              if (memberInfo3.isInvested) {
                 memberInvestedAmount3 = await investment.findOne({
                   userId: member3,
                 });
@@ -65,14 +66,65 @@ const CalclulateLevelIncome = async (userId) => {
     }
   } else return 0;
 };
-
 const calclulateMembers = async (userId) => {
   let members = {};
   let userInfo = await User.findOne({ userId });
   if (userInfo.isInvested) {
-    for(let i=0;i<userInfo.refferedTo.length;i++){
-      
+    let member, member2, member3;
+    let memberInfo, memberInfo2, memberInfo3;
+    let totalMember = [],
+      activeMember = [],
+      deactiveMember = [];
+    // Level 1
+    console.log(userInfo.refferedTo.length);
+    for (let i = 0; i <= userInfo.refferedTo.length; i++) {
+      member = userInfo.refferedTo[i];
+      totalMember.push(member);
+      console.log("totalMember",totalMember);
+      memberInfo = await User.findOne({ member });
+      if (memberInfo.isInvested) {
+        activeMember.push(member);
+        for (let j = 0; j < memberInfo.refferedTo.length; j++) {
+          member2 = memberInfo.refferedTo[j];
+          memberInfo2 = await User.findOne({ member2 });
+          totalMember.push(member2);
+          if (memberInfo2.isInvested) {
+            activeMember.push(member2);
+            for (let k = 0; k < memberInfo2.refferedTo.length; k++) {
+              member3 = memberInfo2.refferedTo[k];
+              memberInfo3 = await User.findOne({ member3 });
+              totalMember.push(member3);
+              if (memberInfo3.isInvested) {
+                activeMember.push(member3);
+              } else deactiveMember.push(member3);
+            }
+          } else deactiveMember.push(member2);
+        }
+      } else deactiveMember.push(member);
     }
-  } else return members;
+    members["totalMembers"] = totalMember;
+    members["activeMembers"] = activeMember;
+    members["deactiveMembers"] = deactiveMember;
+
+    return members;
+  } else return 0;
 };
-module.exports = calclulateRewads;
+
+const WithDrawDetails = async (userId) => {
+  let userInfo = await withdraw.find({ userId });
+
+  if (userInfo) {
+    let totalwithdraw = 0;
+    for (let i = 0; i < userInfo.length; i++) {
+      if (userInfo[i].isAccpected) totalwithdraw += userInfo[i].amount;
+    }
+    return totalwithdraw;
+  } else return 0;
+};
+module.exports = {
+  calclulateRewads,
+  calclulateRewadsPerDay,
+  CalclulateLevelIncome,
+  calclulateMembers,
+  WithDrawDetails,
+};
