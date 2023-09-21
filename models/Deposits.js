@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const Deposits = new mongoose.Schema(
   {
-    userId: { type: String, required: true, unique: true },
+    userId: { type: String, required: true },
     message: {type:String,default:""},
     image : {type:String},
     amount:{type:Number},
