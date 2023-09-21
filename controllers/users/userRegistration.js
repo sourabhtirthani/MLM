@@ -65,7 +65,7 @@ exports.signup = async (req, res, next) => {
     });
 
     let result = await UserSave.save();
-    let addRefferalTo = await User.findOneAndUpdate({userId:refferalCode},{$push:{"refferedTo":refferalCode}});
+    let addRefferalTo = await User.findOneAndUpdate({userId:refferalCode},{$push:{"refferedTo":userId}});
     const { password, ...data } = result._doc;
     return res.status(200).json({ message: "Registered successfully", data });
   } catch (error) {
