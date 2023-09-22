@@ -2,7 +2,7 @@ const { json } = require("body-parser");
 const User = require("../../models/User");
 const investmentHistory = require("../../models/InvestmentHistory");
 const investment = require("../../models/Investment");
-const calclulateRewads = require("../../helpers/calclulateRewards");
+const { calclulateRewads } = require("../../helpers/calclulateRewards");
 //users investment
 exports.investment = async (req, res, next) => {
   try {
@@ -21,12 +21,12 @@ exports.investment = async (req, res, next) => {
       return res.status(400).json({ error: "UserId Not Found" });
     if (!isExistsInvesterId)
       return res.status(400).json({ error: "invester Id Not Found" });
-
-    if (amount < 100 && isExistsInvesterId.investmentWallet >= amount)
+    if (amount > 100 && isExistsInvesterId.mainWallet <= amount) {
       return res.status(400).json({
         error:
           "Investment Amount Must be Grater than 100 And less than equal to investment amount",
       });
+    }
 
     let isAlreadyInvested = await investment.findOne({ userId });
     if (isAlreadyInvested) {
@@ -58,6 +58,11 @@ exports.investment = async (req, res, next) => {
     });
     let result = await invest.save();
 
+    const updateUserData = {
+      mainWallet: isExistsInvesterId.mainWallet - amount,
+      investmentWallet: isExistsInvesterId.investmentWallet + amount,
+    };
+    await User.updateOne({ userId }, { $set: updateUserData });
     return res.status(200).json({ message: "invested successfully", result });
   } catch (error) {
     console.log(error, " errrrr");
@@ -67,8 +72,8 @@ exports.investment = async (req, res, next) => {
 
 // return the investment history
 exports.investmentHistory = async (req, res) => {
-  let userId = req.user.user;
-  userId = user.userId;
-  let result = await investment.find({ userId });
+  let user = req.user.user;
+  let userId = user.userId;
+  let result = await investmentHistory.find({ userId });
   res.status(200).json({ result });
 };
