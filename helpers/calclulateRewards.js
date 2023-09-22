@@ -1,24 +1,24 @@
 const investment = require("../models/Investment");
 const User = require("../models/User");
 const withdraw = require("../models/withdrawal");
-const calclulateRewads = async (userId) => {
-  let userInfo = await investment.findOne({ userId });
-
-  let timedifference =
-    Math.floor(Date.now() / 1000) -
-    Math.floor(Date.parse(userInfo.createdAt) / 1000);
-  let totalRewards = userInfo.amount * (8 / (30 * 86400)) * timedifference;
-  totalRewards += userInfo.rewards;
-  return totalRewards;
-};
-
 const calclulateRewadsPerDay = async (userId) => {
   let userInfo = await investment.findOne({ userId });
 
   let timedifference =
     Math.floor(Date.now() / 1000) -
     Math.floor(Date.parse(userInfo.createdAt) / 1000);
-  let totalRewards = userInfo.amount * (8 / 86400) * timedifference;
+  let totalRewards = userInfo.amount * (0.08 / (30 * 86400)) * timedifference;
+  totalRewards += userInfo.rewards;
+  return totalRewards;
+};
+
+const calclulateRewads = async (userId) => {
+  let userInfo = await investment.findOne({ userId });
+
+  let timedifference =
+    Math.floor(Date.now() / 1000) -
+    Math.floor(Date.parse(userInfo.createdAt) / 1000);
+  let totalRewards = userInfo.amount * (0.08 / 86400) * timedifference;
   totalRewards += userInfo.rewards;
   return totalRewards;
 };
@@ -30,18 +30,19 @@ const CalclulateLevelIncome = async (userId) => {
     let member, member2, member3;
     let memberInfo, memberInfo2, memberInfo3;
     let memberInvestedAmount, memberInvestedAmount2, memberInvestedAmount3;
-    let totalRewards;
+    let totalRewards = 0;
     // Level 1
-    for (let i = 0; i <= userInfo.refferedTo.length; i++) {
+    for (let i = 0; i < userInfo.refferedTo.length; i++) {
       member = userInfo.refferedTo[i];
-      memberInfo = await User.findOne({ member });
+      memberInfo = await User.findOne({ userId: member });
+
       if (memberInfo.isInvested) {
         memberInvestedAmount = await investment.findOne({ userId: member });
         memberInvestedAmount = memberInvestedAmount.amount;
         totalRewards = (memberInvestedAmount * rewardPerceantege[0]) / 100;
         for (let j = 0; j < memberInfo.refferedTo.length; j++) {
           member2 = memberInfo.refferedTo[j];
-          memberInfo2 = await User.findOne({ member2 });
+          memberInfo2 = await User.findOne({ userId: member2 });
           if (memberInfo2.isInvested) {
             memberInvestedAmount2 = await investment.findOne({
               userId: member2,
@@ -50,7 +51,7 @@ const CalclulateLevelIncome = async (userId) => {
             totalRewards = (memberInvestedAmount2 * rewardPerceantege[1]) / 100;
             for (let k = 0; k < memberInfo2.refferedTo.length; k++) {
               member3 = memberInfo2.refferedTo[k];
-              memberInfo3 = await User.findOne({ member3 });
+              memberInfo3 = await User.findOne({ userId: member3 });
               if (memberInfo3.isInvested) {
                 memberInvestedAmount3 = await investment.findOne({
                   userId: member3,
@@ -64,6 +65,7 @@ const CalclulateLevelIncome = async (userId) => {
         }
       }
     }
+    return totalRewards;
   } else return 0;
 };
 const calclulateMembers = async (userId) => {
@@ -77,22 +79,22 @@ const calclulateMembers = async (userId) => {
       deactiveMember = [];
     // Level 1
     console.log(userInfo.refferedTo.length);
-    for (let i = 0; i <= userInfo.refferedTo.length; i++) {
+    for (let i = 0; i < userInfo.refferedTo.length; i++) {
       member = userInfo.refferedTo[i];
       totalMember.push(member);
-      console.log("totalMember",totalMember);
-      memberInfo = await User.findOne({ member });
+      memberInfo = await User.findOne({ userId: member });
       if (memberInfo.isInvested) {
         activeMember.push(member);
+
         for (let j = 0; j < memberInfo.refferedTo.length; j++) {
           member2 = memberInfo.refferedTo[j];
-          memberInfo2 = await User.findOne({ member2 });
+          memberInfo2 = await User.findOne({ userId: member2 });
           totalMember.push(member2);
           if (memberInfo2.isInvested) {
             activeMember.push(member2);
             for (let k = 0; k < memberInfo2.refferedTo.length; k++) {
               member3 = memberInfo2.refferedTo[k];
-              memberInfo3 = await User.findOne({ member3 });
+              memberInfo3 = await User.findOne({ userId: member3 });
               totalMember.push(member3);
               if (memberInfo3.isInvested) {
                 activeMember.push(member3);

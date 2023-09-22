@@ -9,14 +9,17 @@ const {
 exports.userDashboard = async (req, res) => {
   let user = req.user.user;
   const userId = user.userId;
+  let dashboardInfo = {};
   const memberDeatils = await calclulateMembers(userId);
-  //console.log("memberDeatils", memberDeatils);
   const todayROI = await calclulateRewadsPerDay(userId);
-  //   console.log("todayROI", todayROI);
   const totalRoI = await calclulateRewads(userId);
-  //   console.log("totalRoI", totalRoI);
   const levelIncome = await CalclulateLevelIncome(userId);
-  //   console.log("levelIncome", levelIncome);
   const withdrawDetail = await WithDrawDetails(userId);
-  //   console.log("withdrawDetail", withdrawDetail);
+  dashboardInfo["memberDeatils"] = memberDeatils;
+  dashboardInfo["todayROI"] = todayROI;
+  dashboardInfo["totalRoI"] = totalRoI;
+  dashboardInfo["levelIncome"] = levelIncome;
+  dashboardInfo["withdrawDetail"] = withdrawDetail;
+
+  res.status(200).json({ result: dashboardInfo });
 };
