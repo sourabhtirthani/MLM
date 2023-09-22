@@ -1,7 +1,7 @@
 const { json } = require("body-parser");
 const User = require("../../models/User");
 const Withdraw = require("../../models/withdrawal");
-const {calclulateRewads} = require("../../helpers/calclulateRewards");
+const { calclulateRewads } = require("../../helpers/calclulateRewards");
 // post request for withdraw amout
 exports.withdrawal = async (req, res, next) => {
   try {
@@ -42,8 +42,8 @@ exports.withdrawal = async (req, res, next) => {
 
 // withdraw history
 exports.withdrwalHistory = async (req, res) => {
-  let userId = req.user.user;
-  userId = user.userId;
+  let user = req.user.user;
+  let userId = user.userId;
   let result = await Withdraw.find({ userId });
   res.status(200).json({ result });
 };
