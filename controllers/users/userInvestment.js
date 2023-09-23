@@ -59,8 +59,8 @@ exports.investment = async (req, res, next) => {
     let result = await invest.save();
 
     const updateUserData = {
-      mainWallet: isExistsInvesterId.mainWallet - amount,
-      investmentWallet: isExistsInvesterId.investmentWallet + amount,
+      mainWallet: Number(isExistsInvesterId.mainWallet) - Number(amount),
+      investmentWallet:Number(isExistsInvesterId.investmentWallet) + Number(amount),
     };
     await User.updateOne({ userId }, { $set: updateUserData });
     return res.status(200).json({ message: "invested successfully", result });

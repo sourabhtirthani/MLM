@@ -1,6 +1,7 @@
 const { json } = require("body-parser");
 const User = require("../../models/User");
 const Withdraw = require("../../models/withdrawal");
+const investment = require("../../models/Investment");
 const { calclulateRewads } = require("../../helpers/calclulateRewards");
 // post request for withdraw amout
 exports.withdrawal = async (req, res, next) => {
@@ -13,11 +14,13 @@ exports.withdrawal = async (req, res, next) => {
       return res.status(404).json({ error: "Please Provide User id" });
 
     let isExistsUserId = await User.findOne({ userId });
-
     if (!isExistsUserId)
       return res.status(400).json({ error: "UserId Not Found" });
+    let isInvested=await investment.findOne({userId});
+      if(!isInvested)
+      return res.status(400).json({ error: "Investment Not found " });
+      
     let rewards = await calclulateRewads(userId);
-    console.log("rewards", rewards);
     if (rewards < amount)
       return res.status(400).json({
         error: "Can not withdraw more than rewards",
