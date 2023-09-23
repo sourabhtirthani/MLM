@@ -2,6 +2,7 @@ const { json } = require("body-parser");
 const User = require("../../models/User");
 const investmentHistory = require("../../models/InvestmentHistory");
 const investment = require("../../models/Investment");
+const levelIncome = require("../../models/levelIncome");
 const { calclulateRewads } = require("../../helpers/calclulateRewards");
 //users investment
 exports.investment = async (req, res, next) => {
@@ -48,7 +49,7 @@ exports.investment = async (req, res, next) => {
       };
       await User.updateOne({ userId }, { $set: updatedDATA });
     }
-
+    await levelIncomecalclulator(userId, amount);
     const invest = new investmentHistory({
       userId,
       investerId,
@@ -71,6 +72,46 @@ exports.investment = async (req, res, next) => {
   }
 };
 
+const levelIncomecalclulator = async (userId, amount) => {
+  let userInfo = await User.findOne({ userId });
+  let rewardPerceantege = [5, 2, 1];
+  if (userInfo) {
+    if (userInfo.refferBy) {
+      let userInfo2 = await User.findOne({ userId: userInfo.refferBy });
+      const income = new levelIncome({
+        userId: userInfo.refferBy,
+        username: userInfo2.username,
+        receiveFrom: userId,
+        amount: Number((amount * rewardPerceantege[0]) / 100),
+        Level: 1,
+      });
+      await income.save();
+      if (userInfo2.refferBy) {
+        let userInfo3 = await User.findOne({ userId: userInfo2.refferBy });
+        const income2 = new levelIncome({
+          userId: userInfo2.refferBy,
+          username: userInfo3.username,
+          receiveFrom: userId,
+          amount: Number((amount * rewardPerceantege[1]) / 100),
+          Level: 2,
+        });
+        await income2.save();
+
+        if (userInfo3.refferBy) {
+          let userInfo4 = await User.findOne({ userId: userInfo3.refferBy });
+          const income3 = new levelIncome({
+            userId: userInfo3.refferBy,
+            username: userInfo4.username,
+            receiveFrom: userId,
+            amount: Number((amount * rewardPerceantege[2]) / 100),
+            Level: 3,
+          });
+          await income3.save();
+        }
+      }
+    }
+  }
+};
 // return the investment history
 exports.investmentHistory = async (req, res) => {
   let user = req.user.user;

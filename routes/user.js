@@ -115,7 +115,7 @@ router.get("/directTeam",[verifyToken,errorHandler] , userSection.directTeam);
 router.get("/roi-Income", userIncome.claclulateROI);
 
 // Level income
-router.get("/level-Income", userIncome.claclulateLEVEL);
+router.get("/level-Income", [verifyToken,errorHandler],userIncome.claclulateLEVEL);
 
 //=========================================== USERS Withdraw ===========================================
 
