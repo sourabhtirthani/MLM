@@ -32,7 +32,7 @@ exports.investment = async (req, res, next) => {
     if (isAlreadyInvested) {
       let rewards = await calclulateRewads(userId);
       const updatedDATA = {
-        amount: isAlreadyInvested.amount + amount,
+        amount: Number(isAlreadyInvested.amount) + Number(amount),
         rewards: rewards,
       };
       await investment.updateOne({ userId }, { $set: updatedDATA });
@@ -60,7 +60,8 @@ exports.investment = async (req, res, next) => {
 
     const updateUserData = {
       mainWallet: Number(isExistsInvesterId.mainWallet) - Number(amount),
-      investmentWallet:Number(isExistsInvesterId.investmentWallet) + Number(amount),
+      investmentWallet:
+        Number(isExistsInvesterId.investmentWallet) + Number(amount),
     };
     await User.updateOne({ userId }, { $set: updateUserData });
     return res.status(200).json({ message: "invested successfully", result });
