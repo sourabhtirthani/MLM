@@ -117,5 +117,10 @@ exports.investmentHistory = async (req, res) => {
   let user = req.user.user;
   let userId = user.userId;
   let result = await investmentHistory.find({ userId });
-  res.status(200).json({ result });
+  let array = Array();
+    let j=1;
+    for(let i=0;i<result.length;i++){            
+        array.push({id:j+i,...result[i]._doc});
+    }
+  res.status(200).json({ result:array });
 };

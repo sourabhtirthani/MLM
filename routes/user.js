@@ -41,7 +41,7 @@ router.post("/forgot", errorHandler, userRegistration.forgotPassword);
 router.post("/reset", errorHandler, userRegistration.reset);
 
 // reset user password
-router.post("/resetPassword", errorHandler, userRegistration.resetPassword);
+router.post("/resetPassword", [errorHandler,verifyToken], userRegistration.resetPassword);
 
 // block user
 router.post("/block",[errorHandler,verifyToken], userRegistration.blockUser)
