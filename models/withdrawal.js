@@ -6,7 +6,7 @@ const withdraw = mongoose.Schema(
     username: { type: String, required: true },
     amount: { type: Number, required: true },
     address: { type: String, required: true },
-    isAccpected: { type: Boolean, default: false },
+    isAccpected: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

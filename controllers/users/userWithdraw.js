@@ -36,7 +36,7 @@ exports.withdrawal = async (req, res, next) => {
     let result = await newWithdraw.save();
     res
       .status(201)
-      .json({ messgae: "Withdraw request send successfully", result });
+      .json({ message: "Withdraw request send successfully", result });
   } catch (err) {
     console.log(err);
     next(err);
@@ -44,9 +44,21 @@ exports.withdrawal = async (req, res, next) => {
 };
 
 // withdraw history
-exports.withdrwalHistory = async (req, res) => {
+exports.withdrwalHistory = async (req, res,next) => {
   let user = req.user.user;
   let userId = user.userId;
-  let result = await Withdraw.find({ userId });
-  res.status(200).json({ result });
+  try{
+    let result = await Withdraw.find({ userId });
+    let array = Array();
+    let j=1;
+    for(let i=0;i<result.length;i++){    
+        const createdAt = new Date(result[i].createdAt);            
+        const formattedDate = createdAt.toLocaleDateString();
+        const formattedTime = createdAt.toLocaleTimeString();               
+        array.push({...result[i]._doc,id:j+i,datetime:formattedDate+" "+formattedTime,type:result[i].isAccpected == 2 ? 'Rejected' : result[i].isAccpected == 1 ? 'Accepted' : result[i].isAccpected == 0 ? 'Pending' : ""});
+    }
+    return res.status(200).json({result:array});    
+  }catch(error){
+    next(error);
+  }
 };

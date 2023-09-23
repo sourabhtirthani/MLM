@@ -128,6 +128,39 @@ exports.reset = async (req, res) => {
     }
 };
 
+//users reset password comes here
+exports.resetPassword = async (req, res) => {
+    try{
+        let userId = req.user.user.userId;
+        const { password } = req.body;
+        if (!userId) return res.status(400).json({ error: 'Please provide userId' });
+        if (!password) return res.status(400).json({ error: 'Please provide password' });
+        let isExists = await User.findOne({userId});
+        if(!isExists) return res.status(400).json({error:"User Not Found"});
+
+        // CHECK VALID REQUEST
+        let isValidRequest = await User.findOne({userId});
+        if(!isValidRequest) return res.status(400).json({error:"Invalid Reset password request"});
+
+        // CHECK OLD PASSWORD
+        const isAuthUser = await decryptPassword(password, isExists.password);
+        if (isAuthUser) return res.status(400).json({ error: "Password should be different from old password" });
+
+        // UPDATE NEW PASSWORD
+        let encPass = await encryptPassword(password);
+        let update = await User.updateOne({"userId":{$eq:userId}},{$set:{"password":encPass}});
+
+        if(update){
+            return res.status(200).json({message:"Passoword reset successfully"});
+        }else{
+            return res.status(400).json({error:"Something went wrong"});
+        }
+    }catch(error){
+        console.log(error," error");
+        next(error);
+    }
+};
+
 // users logout comes here
 exports.logout = (req, res) => {};
 
