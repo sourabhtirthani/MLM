@@ -78,7 +78,6 @@ const calclulateMembers = async (userId) => {
       activeMember = [],
       deactiveMember = [];
     // Level 1
-    console.log(userInfo.refferedTo.length);
     for (let i = 0; i < userInfo.refferedTo.length; i++) {
       member = userInfo.refferedTo[i];
       totalMember.push(member);
@@ -112,6 +111,52 @@ const calclulateMembers = async (userId) => {
   } else return 0;
 };
 
+const membersInformation = async (userId) => {
+  let members = {};
+  let userInfo = await User.findOne({ userId });
+  if (userInfo.isInvested) {
+    let member, member2, member3;
+    let memberInfo, memberInfo2, memberInfo3;
+    let totalMember = [],
+      activeMember = [],
+      deactiveMember = [],
+      directTeam = [];
+    // Level 1
+    for (let i = 0; i < userInfo.refferedTo.length; i++) {
+      member = userInfo.refferedTo[i];
+      memberInfo = await User.findOne({ userId: member });
+      totalMember.push(memberInfo);
+      directTeam.push(memberInfo);
+      if (memberInfo.isInvested) {
+        activeMember.push(memberInfo);
+
+        for (let j = 0; j < memberInfo.refferedTo.length; j++) {
+          member2 = memberInfo.refferedTo[j];
+          memberInfo2 = await User.findOne({ userId: member2 });
+          totalMember.push(memberInfo2);
+          if (memberInfo2.isInvested) {
+            activeMember.push(memberInfo2);
+            for (let k = 0; k < memberInfo2.refferedTo.length; k++) {
+              member3 = memberInfo2.refferedTo[k];
+              memberInfo3 = await User.findOne({ userId: member3 });
+              totalMember.push(memberInfo3);
+              if (memberInfo3.isInvested) {
+                activeMember.push(memberInfo3);
+              } else deactiveMember.push(memberInfo3);
+            }
+          } else deactiveMember.push(memberInfo2);
+        }
+      } else deactiveMember.push(memberInfo);
+    }
+    members["totalMembers"] = totalMember;
+    members["activeMembers"] = activeMember;
+    members["deactiveMembers"] = deactiveMember;
+    members["directTeam"]=directTeam;
+
+    return members;
+  } else return 0;
+};
+
 const WithDrawDetails = async (userId) => {
   let userInfo = await withdraw.find({ userId });
 
@@ -129,4 +174,5 @@ module.exports = {
   CalclulateLevelIncome,
   calclulateMembers,
   WithDrawDetails,
+  membersInformation,
 };

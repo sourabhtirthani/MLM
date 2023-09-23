@@ -1,10 +1,32 @@
-const { json } = require("body-parser");
+const { membersInformation } = require("../../helpers/calclulateRewards");
 
 //fetch all users
-exports.allusers = (req, res) => {};
+exports.allusers = async (req, res) => {
+  let user = req.user.user;
+  const userId = user.userId;
+  let members = await membersInformation(userId);
+  res.status(200).json({ result: members.totalMembers });
+};
 
 // fetch active users
-exports.activeUsers = (req, res) => {};
+exports.activeUsers = async (req, res) => {
+  let user = req.user.user;
+  const userId = user.userId;
+  let members = await membersInformation(userId);
+  res.status(200).json({ result: members.activeMembers });
+};
 
 // fetch inactive users
-exports.inActiveUsers = (req, res) => {};
+exports.inActiveUsers = async (req, res) => {
+  let user = req.user.user;
+  const userId = user.userId;
+  let members = await membersInformation(userId);
+  res.status(200).json({ result: members.deactiveMembers });
+};
+
+exports.directTeam = async (req, res) => {
+  let user = req.user.user;
+  const userId = user.userId;
+  let members = await membersInformation(userId);
+  res.status(200).json({ result: members.directTeam });
+};

@@ -99,14 +99,16 @@ router.get("/fundTrnasferHistory",[verifyToken,errorHandler] , userFundTransfer.
 //=========================================== USERS SECTION ===========================================
 
 //all users
-router.get("/allUsers", userSection.allusers);
+router.get("/allUsers",[verifyToken,errorHandler] , userSection.allusers);
 
 // active users
-router.get("/activeUsers", userSection.activeUsers);
+router.get("/activeUsers", [verifyToken,errorHandler] ,userSection.activeUsers);
 
 // Inactive users
-router.get("inactiveUsers", userSection.inActiveUsers);
+router.get("/inactiveUsers",[verifyToken,errorHandler] , userSection.inActiveUsers);
 
+// direct Team
+router.get("/directTeam",[verifyToken,errorHandler] , userSection.directTeam);
 //=========================================== USERS INCOME ===========================================
 
 //ROI income
