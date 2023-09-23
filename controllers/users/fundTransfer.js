@@ -57,7 +57,15 @@ exports.fundTransferHistory = async (req, res, next) => {
         if(!isExists) return res.status(400).json({error:"User not found!"});
 
         let result = await Transfer.find({ $or: [{ fromUserId:user.userId }, { toUserId:user.userId }] });
-        return res.status(200).json({result});
+        let array = Array();
+        let j=1;
+        for(let i=0;i<result.length;i++){    
+            const createdAt = new Date(result[i].createdAt);            
+            const formattedDate = createdAt.toLocaleDateString();
+            const formattedTime = createdAt.toLocaleTimeString();               
+            array.push({id:j+i,datetime:formattedDate+" "+formattedTime,type:result[i].fromUserId == user.userId ? 'Send' : result[i].toUserId == user.userId ? 'Received' : "",...result[i]._doc});
+        }
+        return res.status(200).json({result:array});
     } catch (error) {
         console.log(error);
         next(error);
