@@ -116,7 +116,7 @@ const levelIncomecalclulator = async (userId, amount) => {
 exports.investmentHistory = async (req, res) => {
   let user = req.user.user;
   let userId = user.userId;
-  let result = await investmentHistory.find({ userId });
+  let result = await investmentHistory.find({ userId }).sort({createdAt: 'desc'});
   let array = Array();
     let j=1;
     for(let i=0;i<result.length;i++){            

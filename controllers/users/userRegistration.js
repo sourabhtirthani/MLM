@@ -29,6 +29,68 @@ exports.login = async (req, res,next) => {
     }
 };
 
+// user login logic comes here
+exports.adminLogin = async (req, res,next) => {
+    try {
+        let {email,password,username} = req.body;
+        if(!email) return res.status(400).json({error:"Please provide a email"});
+        if(!password) return res.status(400).json({error:"Please provide a password"});
+        let isExists = await User.findOne({$or:[{email},{username}]});
+        if(!isExists) return res.status(400).json({error:"User Not Found"});    
+        if(isExists.block == true) return res.status(400).json({error:"You are blocked please contact with admin"});
+        if(Number(isExists.role) != 1) return res.status(400).json({error:"Only Admin can access this panel"});
+        const isAuthUser = await decryptPassword(password, isExists.password);
+        if(isAuthUser){
+            let { password, ...data } = isExists._doc;
+            const jwtToken = jwt.sign({ user: data }, process.env.SECRET, { expiresIn: '24h' })
+            return res.status(200).json({result: { user: data, token: jwtToken }});
+        }else{
+            return res.status(400).json({error:"Email and password is not valid"});
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+// user signup logics comes here
+exports.adminsignup = async (req, res, next) => {
+    try {
+      let { email, password: passwordd, mobileNo, username, role } = req.body;
+      if (!email)
+        return res.status(400).json({ error: "Please provide a Email" });
+      if (!passwordd)
+        return res.status(400).json({ error: "Please provide a Password" });
+      if (!mobileNo)
+        return res.status(400).json({ error: "Please provide a Mobile" });
+        
+      if(!validRegex.test(email)) return res.status(400).json({error:"Please provide a valid email address"});
+        
+  
+      let isExists = await User.findOne({ $or: [{ email }, { username }] });
+      if (isExists) return res.status(400).json({ error: "User already Exists" });
+      let roleId = role; 
+      if(!roleId) roleId = 0;
+  
+      let encrptPass = await encryptPassword(passwordd);
+      let userId = generateRandomID();
+      let UserSave = new User({
+        email,
+        password: encrptPass,
+        mobileNo,
+        userId,
+        username,
+        role:roleId     
+      });
+  
+      let result = await UserSave.save();      
+      const { password, ...data } = result._doc;
+      return res.status(200).json({ message: "Registered successfully", data });
+    } catch (error) {
+      console.log(error, " errrrr");
+      next(error);
+    }
+  };
+
 // user signup logics comes here
 exports.signup = async (req, res, next) => {
   try {

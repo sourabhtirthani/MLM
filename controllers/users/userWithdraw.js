@@ -48,7 +48,7 @@ exports.withdrwalHistory = async (req, res,next) => {
   let user = req.user.user;
   let userId = user.userId;
   try{
-    let result = await Withdraw.find({ userId });
+    let result = await Withdraw.find({ userId }).sort({createdAt: 'desc'});
     let array = Array();
     let j=1;
     for(let i=0;i<result.length;i++){    

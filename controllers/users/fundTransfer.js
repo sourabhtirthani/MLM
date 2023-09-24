@@ -56,7 +56,7 @@ exports.fundTransferHistory = async (req, res, next) => {
         let isExists = await User.findOne({userId:user.userId});
         if(!isExists) return res.status(400).json({error:"User not found!"});
 
-        let result = await Transfer.find({ $or: [{ fromUserId:user.userId }, { toUserId:user.userId }] });
+        let result = await Transfer.find({ $or: [{ fromUserId:user.userId }, { toUserId:user.userId }] }).sort({createdAt: 'desc'});
         let array = Array();
         let j=1;
         for(let i=0;i<result.length;i++){    

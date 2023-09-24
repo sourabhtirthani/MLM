@@ -34,6 +34,12 @@ router.post("/signup", errorHandler, userRegistration.signup);
 // sign in for user
 router.post("/signin", errorHandler, userRegistration.login);
 
+// sign in for user
+router.post("/adminsignin", errorHandler, userRegistration.adminLogin);
+
+// Sign-up for user
+router.post("/adminsignup", errorHandler, userRegistration.adminsignup);
+
 // forgot password
 router.post("/forgot", errorHandler, userRegistration.forgotPassword);
 
@@ -68,11 +74,14 @@ router.post("/logout", userRegistration.logout);
 // all deposite
 router.get("/all", [errorHandler,verifyToken], userDeposite.allDeposite);
 
+// all user deposits
+router.get("/allUserDeposit", [errorHandler], userDeposite.allUserDetails);
+
 // user deposite request
 router.post("/requestDesposit",[upload.fields([{ name: 'attachment', maxCount: 1 }]),verifyToken,errorHandler], userDeposite.requestDeposit);
 
 // approve Deposite
-router.get("/approveDeposite",[verifyToken,errorHandler], userDeposite.approveDeposite);
+router.post("/approveDeposite",[verifyToken,errorHandler], userDeposite.approveDeposite);
 
 // pending Deposite
 router.get("/pendingDeposite", [verifyToken,errorHandler], userDeposite.pendingDeposite);

@@ -7,7 +7,7 @@ const Users = new mongoose.Schema(
     mobileNo: { type: String, require: true },
     username: { type: String, required: true, unique: true },
     userId: { type: String, required: true, unique: true },
-    refferBy: { type: String, required: true, unique: true },
+    refferBy: { type: String, required: false },
     refferedTo : [{type : String,unique:true}],
     isInvested: { type: Boolean, default: false },
     mainWallet: { type: Number, default: 0 }, 
