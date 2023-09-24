@@ -129,7 +129,7 @@ exports.reset = async (req, res) => {
 };
 
 //users reset password comes here
-exports.resetPassword = async (req, res) => {
+exports.resetPassword = async (req, res,next) => {
     try{
         let userId = req.user.user.userId;
         const { password } = req.body;

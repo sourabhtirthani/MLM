@@ -17,7 +17,14 @@ exports.userDashboard = async (req, res) => {
   const levelIncome = await CalclulateLevelIncome(userId);
   const withdrawDetail = await WithDrawDetails(userId);
   let totalinvestment = await investment.findOne({ userId });
-  totalinvestment = totalinvestment.amount;
+  let amount = 0;
+  if(!totalinvestment){
+    amount=0;
+  } else {
+    amount = totalinvestment.amount;
+  }
+
+  totalinvestment = amount;
   dashboardInfo["memberDeatils"] = memberDeatils;
   dashboardInfo["todayROI"] = todayROI;
   dashboardInfo["totalRoI"] = totalRoI;

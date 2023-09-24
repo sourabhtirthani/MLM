@@ -9,7 +9,12 @@ exports.allDeposite = async (req, res) => {
         let user = req.user.user;
         if(!user) return res.status(400).json({error:"Please provide a token"});
         let result = await Deposit.find({userId:user.userId});
-        return res.status(200).json({result});
+        let array = Array();
+        let j=1;
+        for(let i=0;i<result.length;i++){               
+            array.push({...result[i]._doc,id:j+i});
+        }        
+        return res.status(200).json({result:array});
     }catch(error){
         console.log(error);
         next(error);
