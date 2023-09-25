@@ -8,21 +8,22 @@ const calclulateRewadsPerDay = async (userId) => {
   let timedifference =
     Math.floor(Date.now() / 1000) -
     Math.floor(Date.parse(userInfo.createdAt) / 1000);
-  let totalRewards = userInfo.amount * (0.08 / (30 * 86400)) * timedifference;
-  totalRewards += userInfo.rewards;
+  let totalRewards = Number(userInfo.amount) * (0.08 / (30 * 86400)) * Number(timedifference);
+  totalRewards += Number(userInfo.rewards);
   return totalRewards;
 };
 
 const calclulateRewads = async (userId) => {
   let userInfo = await investment.findOne({ userId });
   if (!userInfo) return 0;
+  let totalRewards = 0;
   let timedifference =
     Math.floor(Date.now() / 1000) -
     Math.floor(Date.parse(userInfo.createdAt) / 1000);
-  let totalRewards = userInfo.amount * (0.08 / 86400) * timedifference;
-  totalRewards += userInfo.rewards;
-  if (totalRewards > 2 * userInfo.amount) return 2 * userInfo.amount;
-  else totalRewards;
+    totalRewards = Number(userInfo.amount) * (0.08 / 86400) * Number(timedifference);
+    totalRewards += Number(userInfo.rewards);    
+    if (Number(totalRewards) > 2 * Number(userInfo.amount)) return 2 * Number(userInfo.amount);    
+  else return totalRewards;
 };
 
 const CalclulateLevelIncome = async (userId) => {
@@ -58,6 +59,7 @@ const calclulateMembers = async (userId) => {
     for (let i = 0; i < userInfo.refferedTo.length; i++) {
       member = userInfo.refferedTo[i];
       memberInfo = await User.findOne({ userId: member });
+      if(!memberInfo) return members;
       let array = Array();
       let j = i + 1;
       for (let key in memberInfo) {

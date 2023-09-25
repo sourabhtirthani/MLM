@@ -12,8 +12,8 @@ exports.userDashboard = async (req, res) => {
   const userId = user.userId;
   let dashboardInfo = {};
   const memberDeatils = await calclulateMembers(userId);
-  const todayROI = await calclulateRewadsPerDay(userId);
-  const totalRoI = await calclulateRewads(userId);
+  const todayROI = await calclulateRewadsPerDay(userId) ? await calclulateRewadsPerDay(userId) : 0;
+  const totalRoI = await calclulateRewads(userId) ? await calclulateRewads(userId) : 0;
   const levelIncome = await CalclulateLevelIncome(userId);
   const withdrawDetail = await WithDrawDetails(userId);
   let totalinvestment = await investment.findOne({ userId });
@@ -32,6 +32,5 @@ exports.userDashboard = async (req, res) => {
   dashboardInfo["withdrawDetail"] = withdrawDetail;
   dashboardInfo["totalIncome"] = Number(totalRoI) + Number(levelIncome);
   dashboardInfo["totalinvestment"] = totalinvestment;
-
   res.status(200).json({ result: dashboardInfo });
 };
