@@ -61,13 +61,13 @@ exports.investment = async (req, res, next) => {
 
     const updateUserData = {
       investmentWallet:
-        Number(isExistsInvesterId.investmentWallet) + Number(amount),
+        Number(isExistsUserId.investmentWallet) + Number(amount),
     };
     await User.updateOne({ userId }, { $set: updateUserData });
     const updateInverterData = {
       mainWallet: Number(isExistsInvesterId.mainWallet) - Number(amount),
     };
-    await User.updateOne({ investerId }, { $set: updateInverterData });
+    await User.updateOne({ userId:investerId }, { $set: updateInverterData });
     
     return res.status(200).json({ message: "invested successfully", result });
   } catch (error) {
