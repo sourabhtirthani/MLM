@@ -60,11 +60,15 @@ exports.investment = async (req, res, next) => {
     let result = await invest.save();
 
     const updateUserData = {
-      mainWallet: Number(isExistsInvesterId.mainWallet) - Number(amount),
       investmentWallet:
         Number(isExistsInvesterId.investmentWallet) + Number(amount),
     };
     await User.updateOne({ userId }, { $set: updateUserData });
+    const updateInverterData = {
+      mainWallet: Number(isExistsInvesterId.mainWallet) - Number(amount),
+    };
+    await User.updateOne({ investerId }, { $set: updateInverterData });
+    
     return res.status(200).json({ message: "invested successfully", result });
   } catch (error) {
     console.log(error, " errrrr");
@@ -116,11 +120,13 @@ const levelIncomecalclulator = async (userId, amount) => {
 exports.investmentHistory = async (req, res) => {
   let user = req.user.user;
   let userId = user.userId;
-  let result = await investmentHistory.find({ userId }).sort({createdAt: 'desc'});
+  let result = await investmentHistory
+    .find({ userId })
+    .sort({ createdAt: "desc" });
   let array = Array();
-    let j=1;
-    for(let i=0;i<result.length;i++){            
-        array.push({id:j+i,...result[i]._doc});
-    }
-  res.status(200).json({ result:array });
+  let j = 1;
+  for (let i = 0; i < result.length; i++) {
+    array.push({ id: j + i, ...result[i]._doc });
+  }
+  res.status(200).json({ result: array });
 };
