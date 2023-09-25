@@ -39,6 +39,8 @@ const CalclulateLevelIncome = async (userId) => {
       },
     },
   ]);
+  
+  if(totalRewards.length == 0) return 0;
   if (totalRewards) return totalRewards[0].totalAmount;
   else return 0;
 };
@@ -55,8 +57,34 @@ const calclulateMembers = async (userId) => {
     // Level 1
     for (let i = 0; i < userInfo.refferedTo.length; i++) {
       member = userInfo.refferedTo[i];
-      totalMember.push(member);
       memberInfo = await User.findOne({ userId: member });
+      let array = Array();
+      let j = i + 1;
+      for (let key in memberInfo) {
+        if (memberInfo.hasOwnProperty(key)) {
+          if (key == "_doc") {
+            result = memberInfo[key];
+            const createdAt = new Date(result.createdAt);
+            const formattedDate = createdAt.toLocaleDateString();
+            const formattedTime = createdAt.toLocaleTimeString();
+            array.push({
+              id: j++,
+              datetime: formattedDate + " " + formattedTime,
+              isblocked:
+                result.block == true
+                  ? "Block"
+                  : result.block == false
+                  ? "Unblock"
+                  : "",
+              isActive: result.isInvested == true ? "Active" : "Inactive",
+              totalMembers: result.refferedTo.length,
+              ...result,
+            });
+          }
+        }
+      }
+      totalMember.push(array[0]);
+      directTeam.push(memberInfo);
       if (memberInfo.isInvested) {
         activeMember.push(member);
 
@@ -81,6 +109,7 @@ const calclulateMembers = async (userId) => {
     members["totalMembers"] = totalMember;
     members["activeMembers"] = activeMember;
     members["deactiveMembers"] = deactiveMember;
+    members["directTeam"] = directTeam;
 
     return members;
   } else return 0;
