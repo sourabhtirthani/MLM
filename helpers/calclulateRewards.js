@@ -53,7 +53,7 @@ const calclulateMembers = async (userId) => {
     let memberInfo, memberInfo2, memberInfo3;
     let totalMember = [],
       activeMember = [],
-      deactiveMember = [];
+      deactiveMember = [],directTeam = [];
     // Level 1
     for (let i = 0; i < userInfo.refferedTo.length; i++) {
       member = userInfo.refferedTo[i];

@@ -22,7 +22,7 @@ exports.investment = async (req, res, next) => {
       return res.status(400).json({ error: "UserId Not Found" });
     if (!isExistsInvesterId)
       return res.status(400).json({ error: "invester Id Not Found" });
-    if (amount > 100 && isExistsInvesterId.mainWallet <= amount) {
+    if (Number(amount) > 100 && Number(isExistsInvesterId.mainWallet) <= Number(amount)) {
       return res.status(400).json({
         error:
           "Investment Amount Must be Grater than 100 And less than equal to investment amount",
