@@ -4,6 +4,7 @@ const withdraw = require("../models/withdrawal");
 const levelIncome = require("../models/levelIncome");
 const calclulateRewadsPerDay = async (userId) => {
   let userInfo = await investment.findOne({ userId });
+  if (!userInfo) return 0;
   let timedifference =
     Math.floor(Date.now() / 1000) -
     Math.floor(Date.parse(userInfo.createdAt) / 1000);
@@ -162,7 +163,7 @@ const membersInformation = async (userId) => {
 
 const WithDrawDetails = async (userId) => {
   let userInfo = await withdraw.find({ userId });
-
+  if (!userInfo) return 0;
   if (userInfo) {
     let totalwithdraw = 0;
     for (let i = 0; i < userInfo.length; i++) {
