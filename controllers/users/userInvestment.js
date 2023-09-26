@@ -22,7 +22,7 @@ exports.investment = async (req, res, next) => {
       return res.status(400).json({ error: "UserId Not Found" });
     if (!isExistsInvesterId)
       return res.status(400).json({ error: "invester Id Not Found" });
-    if (amount > 100 && isExistsInvesterId.mainWallet <= amount) {
+    if (Number(amount) > 100 && Number(isExistsInvesterId.mainWallet) <= Number(amount)) {
       return res.status(400).json({
         error:
           "Investment Amount Must be Grater than 100 And less than equal to investment amount",
@@ -61,14 +61,19 @@ exports.investment = async (req, res, next) => {
 
     const updateUserData = {
       investmentWallet:
-        Number(isExistsInvesterId.investmentWallet) + Number(amount),
+        Number(isExistsUserId.investmentWallet) + Number(amount),
     };
     await User.updateOne({ userId }, { $set: updateUserData });
     const updateInverterData = {
       mainWallet: Number(isExistsInvesterId.mainWallet) - Number(amount),
     };
+<<<<<<< HEAD
     await User.updateOne({ userId: investerId }, { $set: updateInverterData });
 
+=======
+    await User.updateOne({ userId:investerId }, { $set: updateInverterData });
+    
+>>>>>>> a7f42126834bfbcc8d86d81e54d3948380ce471a
     return res.status(200).json({ message: "invested successfully", result });
   } catch (error) {
     console.log(error, " errrrr");
