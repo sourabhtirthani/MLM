@@ -2,27 +2,32 @@ const investment = require("../models/Investment");
 const User = require("../models/User");
 const withdraw = require("../models/withdrawal");
 const levelIncome = require("../models/levelIncome");
+const moment = require("moment");
+
 const calclulateRewadsPerDay = async (userId) => {
   let userInfo = await investment.findOne({ userId });
   if (!userInfo) return 0;
-  let timedifference =
-    Math.floor(Date.now() / 1000) -
-    Math.floor(Date.parse(userInfo.createdAt) / 1000);
-  let totalRewards = userInfo.amount * (0.08 / (30 * 86400)) * timedifference;
-  totalRewards += userInfo.rewards;
+  const currentDate = moment();
+
+  // Calculate the difference in days
+  const dateDifference = currentDate.diff(moment(userInfo.createdAt), "days");
+  let totalRewards = 0;
+  if (dateDifference > 1) {
+    totalRewards = userInfo.amount * (0.08 / 30);
+  }
   return totalRewards;
 };
 
 const calclulateRewads = async (userId) => {
   let userInfo = await investment.findOne({ userId });
   if (!userInfo) return 0;
-  let timedifference =
-    Math.floor(Date.now() / 1000) -
-    Math.floor(Date.parse(userInfo.createdAt) / 1000);
-  let totalRewards = userInfo.amount * (0.08 / 86400) * timedifference;
-  totalRewards += userInfo.rewards;
-  if (totalRewards > 2 * userInfo.amount) return 2 * userInfo.amount;
-  else totalRewards;
+  const currentDate = moment();
+  // Calculate the difference in days
+  const dateDifference = currentDate.diff(moment(userInfo.createdAt), "days");
+  let totalRewards = 0;
+  totalRewards = userInfo.amount * (0.08 / 30) * dateDifference;
+  if (totalRewards) return totalRewards;
+  else return 0;
 };
 
 const CalclulateLevelIncome = async (userId) => {
@@ -39,8 +44,8 @@ const CalclulateLevelIncome = async (userId) => {
       },
     },
   ]);
-  
-  if(totalRewards.length == 0) return 0;
+
+  if (totalRewards.length == 0) return 0;
   if (totalRewards) return totalRewards[0].totalAmount;
   else return 0;
 };
@@ -53,7 +58,8 @@ const calclulateMembers = async (userId) => {
     let memberInfo, memberInfo2, memberInfo3;
     let totalMember = [],
       activeMember = [],
-      deactiveMember = [];
+      deactiveMember = [],
+      directTeam = [];
     // Level 1
     for (let i = 0; i < userInfo.refferedTo.length; i++) {
       member = userInfo.refferedTo[i];
