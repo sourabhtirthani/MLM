@@ -4,6 +4,8 @@ const investmentHistory = require("../../models/InvestmentHistory");
 const investment = require("../../models/Investment");
 const levelIncome = require("../../models/levelIncome");
 const { calclulateRewads } = require("../../helpers/calclulateRewards");
+const adminSettings = require("../../models/adminSettings");
+
 //users investment
 exports.investment = async (req, res, next) => {
   try {
@@ -22,7 +24,10 @@ exports.investment = async (req, res, next) => {
       return res.status(400).json({ error: "UserId Not Found" });
     if (!isExistsInvesterId)
       return res.status(400).json({ error: "invester Id Not Found" });
-    if (Number(amount) > 100 && Number(isExistsInvesterId.mainWallet) <= Number(amount)) {
+    if (
+      Number(amount) > 100 &&
+      Number(isExistsInvesterId.mainWallet) <= Number(amount)
+    ) {
       return res.status(400).json({
         error:
           "Investment Amount Must be Grater than 100 And less than equal to investment amount",
@@ -78,7 +83,12 @@ exports.investment = async (req, res, next) => {
 
 const levelIncomecalclulator = async (userId, amount) => {
   let userInfo = await User.findOne({ userId });
-  let rewardPerceantege = [5, 2, 1];
+  let settings = await adminSettings.find();
+  let rewardPerceantege = [
+    settings[0].level1,
+    settings[0].level2,
+    settings[0].level3,
+  ];
   if (userInfo) {
     if (userInfo.refferBy) {
       let userInfo2 = await User.findOne({ userId: userInfo.refferBy });
@@ -120,13 +130,49 @@ const levelIncomecalclulator = async (userId, amount) => {
 exports.investmentHistory = async (req, res) => {
   let user = req.user.user;
   let userId = user.userId;
-  let result = await investmentHistory
-    .find({ userId })
-    .sort({ createdAt: "desc" });
+  let { startDate, endDate, keywords } = req.body;
+  let result = await filterData(userId, startDate, endDate, keywords);
+  if (!result) {
+    result = await investmentHistory
+      .find({ userId })
+      .sort({ createdAt: "desc" });
+  }
   let array = Array();
   let j = 1;
   for (let i = 0; i < result.length; i++) {
     array.push({ id: j + i, ...result[i]._doc });
   }
   res.status(200).json({ result: array });
+};
+
+const filterData = async (userId, startDate, endDate, keywords) => {
+  let query;
+  if (startDate && endDate && keywords) {
+    query = {
+      $and: [
+        { createdAt: { $gte: startDate, $lte: endDate } },
+        { userId: userId },
+        { fromUsername: keywords },
+        { toUsername: keywords },
+      ],
+    };
+  } else if (keywords && !startDate && !endDate) {
+    query = {
+      $and: [
+        { userId: userId },
+        { fromUsername: keywords },
+        { toUsername: keywords },
+      ],
+    };
+  } else if (!keywords && startDate && endDate) {
+    query = {
+      $and: [
+        { createdAt: { $gte: startDate, $lte: endDate } },
+        { userId: userId },
+      ],
+    };
+  }
+
+  let res = await investmentHistory.find(query);
+  return res;
 };

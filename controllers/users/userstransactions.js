@@ -6,15 +6,21 @@ const withdraw = require("../../models/withdrawal");
 exports.transactions = async (req, res) => {
   let user = req.user.user;
   const userId = user.userId;
-  let data =await investmentHistory.aggregate([
+  let data = await investmentHistory.aggregate("withdraw", "investment", [
     {
       $lookup: {
-        from: investmentHistory, // The name of the collection you want to join with
-        localField: "_id", // The field from the "users" collection
-        foreignField: userId, // The field from the "orders" collection
-        as: withdraw, // The name for the field that will store the joined data
+        from: "investment",
+        localField: "userId",
+        foreignField: "userId",
+        as: "investmentDocs",
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        prodId: userId,
       },
     },
   ]);
-  console.log("data",data);
+  console.log("data", data);
 };

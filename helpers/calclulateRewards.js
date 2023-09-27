@@ -2,18 +2,19 @@ const investment = require("../models/Investment");
 const User = require("../models/User");
 const withdraw = require("../models/withdrawal");
 const levelIncome = require("../models/levelIncome");
+const adminSettings = require("../models/adminSettings");
 const moment = require("moment");
 
 const calclulateRewadsPerDay = async (userId) => {
   let userInfo = await investment.findOne({ userId });
   if (!userInfo) return 0;
   const currentDate = moment();
-
+  let settings = await adminSettings.find();
   // Calculate the difference in days
   const dateDifference = currentDate.diff(moment(userInfo.createdAt), "days");
   let totalRewards = 0;
   if (dateDifference > 1) {
-    totalRewards = userInfo.amount * (0.08 / 30);
+    totalRewards = userInfo.amount * (Number(settings[0].ROI) / 100 / 30);
   }
   return totalRewards;
 };
@@ -23,9 +24,11 @@ const calclulateRewads = async (userId) => {
   if (!userInfo) return 0;
   const currentDate = moment();
   // Calculate the difference in days
+  let settings = await adminSettings.find();
   const dateDifference = currentDate.diff(moment(userInfo.createdAt), "days");
   let totalRewards = 0;
-  totalRewards = userInfo.amount * (0.08 / 30) * dateDifference;
+  totalRewards =
+    userInfo.amount * (Number(settings[0].ROI) / 100 / 30) * dateDifference;
   if (totalRewards) return totalRewards;
   else return 0;
 };
@@ -64,7 +67,7 @@ const calclulateMembers = async (userId) => {
     for (let i = 0; i < userInfo.refferedTo.length; i++) {
       member = userInfo.refferedTo[i];
       memberInfo = await User.findOne({ userId: member });
-      if(!memberInfo) return members;
+      if (!memberInfo) return members;
       let array = Array();
       let j = i + 1;
       for (let key in memberInfo) {
