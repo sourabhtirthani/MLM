@@ -10,6 +10,7 @@ const userTransactions = require("../controllers/users/userstransactions");
 const errorHandler = require("../middlewares/errorHandler");
 const verifyToken = require("../middlewares/verifyToken");
 const dashboard=require('../controllers/users/userDashboard');
+const admin=require("../controllers/users/settings");
 const path = require('path');
 const multer = require("multer");
 
@@ -136,10 +137,17 @@ router.get("/withdrawHistory", [verifyToken,errorHandler]  ,userWithdraw.withdrw
 
 //=========================================== USERS trnasactions ===========================================
 
-router.get("/trnasactions", userTransactions.transactions);
+router.get("/trnasactions",[verifyToken,errorHandler], userTransactions.transactions);
 
 //============================================User DashBoard===============================================
 
 router.get("/dashboard",[verifyToken,errorHandler],dashboard.userDashboard);
+
+
+//===========================================admin Settings============================================
+
+router.post("/adminSettings",[verifyToken,errorHandler],admin.settings);
+
+router.get("/fetchSettings",[verifyToken,errorHandler],admin.fetchSetting)
 
 module.exports = router;

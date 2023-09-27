@@ -4,6 +4,8 @@ const investmentHistory = require("../../models/InvestmentHistory");
 const investment = require("../../models/Investment");
 const levelIncome = require("../../models/levelIncome");
 const { calclulateRewads } = require("../../helpers/calclulateRewards");
+const adminSettings = require("../../models/adminSettings");
+
 //users investment
 exports.investment = async (req, res, next) => {
   try {
@@ -22,7 +24,10 @@ exports.investment = async (req, res, next) => {
       return res.status(400).json({ error: "UserId Not Found" });
     if (!isExistsInvesterId)
       return res.status(400).json({ error: "invester Id Not Found" });
-    if (Number(amount) > 100 && Number(isExistsInvesterId.mainWallet) <= Number(amount)) {
+    if (
+      Number(amount) > 100 &&
+      Number(isExistsInvesterId.mainWallet) <= Number(amount)
+    ) {
       return res.status(400).json({
         error:
           "Investment Amount Must be Grater than 100 And less than equal to investment amount",
@@ -67,13 +72,8 @@ exports.investment = async (req, res, next) => {
     const updateInverterData = {
       mainWallet: Number(isExistsInvesterId.mainWallet) - Number(amount),
     };
-<<<<<<< HEAD
     await User.updateOne({ userId: investerId }, { $set: updateInverterData });
 
-=======
-    await User.updateOne({ userId:investerId }, { $set: updateInverterData });
-    
->>>>>>> a7f42126834bfbcc8d86d81e54d3948380ce471a
     return res.status(200).json({ message: "invested successfully", result });
   } catch (error) {
     console.log(error, " errrrr");
@@ -83,7 +83,12 @@ exports.investment = async (req, res, next) => {
 
 const levelIncomecalclulator = async (userId, amount) => {
   let userInfo = await User.findOne({ userId });
-  let rewardPerceantege = [5, 2, 1];
+  let settings = await adminSettings.find();
+  let rewardPerceantege = [
+    settings[0].level1,
+    settings[0].level2,
+    settings[0].level3,
+  ];
   if (userInfo) {
     if (userInfo.refferBy) {
       let userInfo2 = await User.findOne({ userId: userInfo.refferBy });
