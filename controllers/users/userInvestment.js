@@ -130,13 +130,49 @@ const levelIncomecalclulator = async (userId, amount) => {
 exports.investmentHistory = async (req, res) => {
   let user = req.user.user;
   let userId = user.userId;
-  let result = await investmentHistory
-    .find({ userId })
-    .sort({ createdAt: "desc" });
+  let { startDate, endDate, keywords } = req.body;
+  let result = await filterData(userId, startDate, endDate, keywords);
+  if (!result) {
+    result = await investmentHistory
+      .find({ userId })
+      .sort({ createdAt: "desc" });
+  }
   let array = Array();
   let j = 1;
   for (let i = 0; i < result.length; i++) {
     array.push({ id: j + i, ...result[i]._doc });
   }
   res.status(200).json({ result: array });
+};
+
+const filterData = async (userId, startDate, endDate, keywords) => {
+  let query;
+  if (startDate && endDate && keywords) {
+    query = {
+      $and: [
+        { createdAt: { $gte: startDate, $lte: endDate } },
+        { userId: userId },
+        { fromUsername: keywords },
+        { toUsername: keywords },
+      ],
+    };
+  } else if (keywords && !startDate && !endDate) {
+    query = {
+      $and: [
+        { userId: userId },
+        { fromUsername: keywords },
+        { toUsername: keywords },
+      ],
+    };
+  } else if (!keywords && startDate && endDate) {
+    query = {
+      $and: [
+        { createdAt: { $gte: startDate, $lte: endDate } },
+        { userId: userId },
+      ],
+    };
+  }
+
+  let res = await investmentHistory.find(query);
+  return res;
 };
