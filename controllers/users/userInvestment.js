@@ -67,13 +67,8 @@ exports.investment = async (req, res, next) => {
     const updateInverterData = {
       mainWallet: Number(isExistsInvesterId.mainWallet) - Number(amount),
     };
-<<<<<<< HEAD
     await User.updateOne({ userId: investerId }, { $set: updateInverterData });
 
-=======
-    await User.updateOne({ userId:investerId }, { $set: updateInverterData });
-    
->>>>>>> a7f42126834bfbcc8d86d81e54d3948380ce471a
     return res.status(200).json({ message: "invested successfully", result });
   } catch (error) {
     console.log(error, " errrrr");
