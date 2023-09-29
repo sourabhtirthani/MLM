@@ -337,10 +337,51 @@ exports.verifyOtp = async (req,res,next) => {
     }
 }
 
+const filterData = async (startDate, endDate, keywords) => {
+    let query;
+    if (startDate && endDate && keywords) {
+        keywords = keywords === "true1" ? true : keywords
+        keywords = keywords === "true2" ? true : keywords
+      const sdate = new Date(startDate);  
+      const edate = new Date(endDate);
+      query = {
+        $and: [
+          { createdAt: { $gte: sdate, $lte: edate } },
+          { isInvested: keywords },
+          { block: keywords },          
+        ],
+      };
+    } else if (keywords && !startDate && !endDate) {
+        keywords = keywords === "true1" ? true : keywords
+        keywords = keywords === "true2" ? true : keywords
+      query = {
+        $or: [
+          { block: {$eq:keywords} },
+          { isInvested: {$eq : keywords} },          
+        ],
+      };
+    } else if (!keywords && startDate && endDate) {
+      const sdate = new Date(startDate);  
+      const edate = new Date(endDate);
+      query = {
+        $and: [
+          { createdAt: { $gte: sdate, $lte: edate } }
+        ],
+      };
+    }
+    console.log(query);
+    let res = await User.find(query);  
+    return res;
+  };
+
 // get all user information
 exports.totalUsers = async (req,res,next) => {
     try{
-        let result = await User.find({});
+        let { startDate, endDate, keywords } = req.body;
+        let result = await filterData(startDate, endDate, keywords);
+        if (!result) {
+            result = await User.find({});
+        }        
         let array = Array();
         let j = 1;
         for (let i = 0; i < result.length; i++) {

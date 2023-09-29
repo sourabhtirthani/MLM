@@ -75,7 +75,7 @@ router.post("/sendOtpMail",errorHandler,userRegistration.sendMailOtp);
 router.post("/verifyMailOtp",errorHandler,userRegistration.verifyEmailOtp);
 
 // logout
-router.get("/totalUsers",errorHandler, userRegistration.totalUsers);
+router.post("/totalUsers",errorHandler, userRegistration.totalUsers);
 
 // logout
 router.post("/logout", userRegistration.logout);
@@ -142,10 +142,10 @@ router.post("/level-Income", [verifyToken,errorHandler],userIncome.claclulateLEV
 router.post("/withdraw", [verifyToken,errorHandler]  ,userWithdraw.withdrawal);
 
 // withdraw history
-router.get("/withdrawHistory", [verifyToken,errorHandler]  ,userWithdraw.withdrwalHistory);
+router.post("/withdrawHistory", [verifyToken,errorHandler]  ,userWithdraw.withdrwalHistory);
 
 // All withdraw history
-router.get("/allWithdrawHistory", [verifyToken,errorHandler]  ,userWithdraw.AllWithdrawRequests);
+router.post("/allWithdrawHistory", [verifyToken,errorHandler]  ,userWithdraw.AllWithdrawRequests);
 
 // withdraw history
 router.post("/approveWithdraw", [verifyToken,errorHandler]  ,userWithdraw.approvewithdraw);

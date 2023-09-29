@@ -70,7 +70,11 @@ exports.withdrwalHistory = async (req, res, next) => {
   let user = req.user.user;
   let userId = user.userId;
   try {
-    let result = await Withdraw.find({ userId }).sort({ createdAt: "desc" });
+    let { startDate, endDate, keywords } = req.body;
+    let result = await filterData(user.userId, startDate, endDate, keywords);
+    if (!result) {
+      result = await Withdraw.find({ userId }).sort({ createdAt: "desc" });
+    }
     let array = Array();
     let j = 1;
     for (let i = 0; i < result.length; i++) {
@@ -99,7 +103,11 @@ exports.withdrwalHistory = async (req, res, next) => {
 
 exports.AllWithdrawRequests = async (req, res, next) => {
   try {
-    let result = await Withdraw.find({});
+    let { startDate, endDate, keywords } = req.body;
+    let result = await filterAdminData(startDate, endDate, keywords);
+    if (!result) {
+      result = await Withdraw.find({});
+    }
     let array = Array();
     let j = 1;
     for (let i = 0; i < result.length; i++) {
@@ -172,4 +180,72 @@ exports.rejectwithdraw = async (req, res, next) => {
     console.log(error);
     next(error);
   }
+};
+
+const filterData = async (userId, startDate, endDate, keywords) => {
+  let query;
+  if (startDate && endDate && keywords) {
+    const sdate = new Date(startDate);
+    const edate = new Date(endDate);
+    query = {
+      $and: [
+        { createdAt: { $gte: sdate, $lte: edate } },
+        { userId: userId },
+        { $or: [{ username: keywords }, { address: keywords }] },
+      ],
+    };
+  } else if (keywords && !startDate && !endDate) {
+    query = {
+      $and: [
+        { userId: userId },
+        { $or: [{ username: keywords }, { address: keywords }] },
+      ],
+    };
+  } else if (!keywords && startDate && endDate) {
+    const sdate = new Date(startDate);
+
+    const edate = new Date(endDate);
+    query = {
+      $and: [{ createdAt: { $gte: sdate, $lte: edate } }, { userId: userId }],
+    };
+  }
+  if (!query) {
+    query = { userId: userId };
+  }
+
+  let res = await Withdraw.find(query).sort({ createdAt: "desc" });
+  return res;
+};
+
+const filterAdminData = async (startDate, endDate, keywords) => {
+  let query;
+  if (startDate && endDate && keywords) {
+    const sdate = new Date(startDate);
+    const edate = new Date(endDate);
+    query = {
+      $and: [
+        { createdAt: { $gte: sdate, $lte: edate } },        
+        { $or: [{ username: keywords },{ userId: keywords }, { address: keywords }] },
+      ],
+    };
+  } else if (keywords && !startDate && !endDate) {
+    query = {
+      $and: [        
+        { $or: [{ username: keywords }, { address: keywords },{ userId: keywords },] },
+      ],
+    };
+  } else if (!keywords && startDate && endDate) {
+    const sdate = new Date(startDate);
+
+    const edate = new Date(endDate);
+    query = {
+      $and: [{ createdAt: { $gte: sdate, $lte: edate } }],
+    };
+  }
+  if (!query) {
+    query = { };
+  }
+console.log(query)
+  let res = await Withdraw.find(query).sort({ createdAt: "desc" });
+  return res;
 };
