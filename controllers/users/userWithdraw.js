@@ -78,7 +78,20 @@ exports.withdrwalHistory = async (req, res, next) => {
 exports.AllWithdrawRequests = async (req, res, next) => {
   try{
     let result = await Withdraw.find({});
-    return res.status(200).json({result});
+    let array = Array();
+    let j = 1;
+    for (let i = 0; i < result.length; i++) {
+      const createdAt = new Date(result[i].createdAt);
+      const formattedDate = createdAt.toLocaleDateString();
+      const formattedTime = createdAt.toLocaleTimeString();
+      array.push({
+        ...result[i]._doc,
+        id: j + i,
+        datetime: formattedDate + " " + formattedTime,
+        type:result[i].isAccpected
+      });
+    }
+    return res.status(200).json({ result: array });        
   }catch(error){
     next(error);
   }
