@@ -2,7 +2,9 @@ const { json } = require("body-parser");
 const User = require("../../models/User");
 const Withdraw = require("../../models/withdrawal");
 const investment = require("../../models/Investment");
+const totalWithdraw = require("../../models/totalwithdraw");
 const { calclulateRewads } = require("../../helpers/calclulateRewards");
+const transactions = require("../../models/transaction");
 // post request for withdraw amout
 exports.withdrawal = async (req, res, next) => {
   try {
@@ -25,7 +27,19 @@ exports.withdrawal = async (req, res, next) => {
       return res.status(400).json({
         error: "Can not withdraw more than rewards",
       });
-
+    let tWithdraw = await totalWithdraw.findOne({ userId });
+    if (tWithdraw) {
+      const updatedDATA = {
+        amount: Number(tWithdraw.amount) + Number(amount),
+      };
+      await totalWithdraw.updateOne({ userId }, { $set: updatedDATA });
+    } else {
+      const newWith = new totalWithdraw({
+        userId,
+        amount,
+      });
+      await newWith.save();
+    }
     const newWithdraw = new Withdraw({
       userId,
       username,
@@ -34,6 +48,14 @@ exports.withdrawal = async (req, res, next) => {
     });
 
     let result = await newWithdraw.save();
+    const alltransaction = new transactions({
+      userId,
+      Details: "Withdraw",
+      amount,
+      fromName: isExistsUserId.username,
+      username: isExistsUserId.username,
+    });
+    await alltransaction.save();
     res
       .status(201)
       .json({ message: "Withdraw request send successfully", result });
@@ -76,7 +98,7 @@ exports.withdrwalHistory = async (req, res, next) => {
 };
 
 exports.AllWithdrawRequests = async (req, res, next) => {
-  try{
+  try {
     let result = await Withdraw.find({});
     let array = Array();
     let j = 1;
@@ -88,14 +110,14 @@ exports.AllWithdrawRequests = async (req, res, next) => {
         ...result[i]._doc,
         id: j + i,
         datetime: formattedDate + " " + formattedTime,
-        type:result[i].isAccpected
+        type: result[i].isAccpected,
       });
     }
-    return res.status(200).json({ result: array });        
-  }catch(error){
+    return res.status(200).json({ result: array });
+  } catch (error) {
     next(error);
   }
-}
+};
 
 exports.approvewithdraw = async (req, res, next) => {
   try {
@@ -106,7 +128,7 @@ exports.approvewithdraw = async (req, res, next) => {
         .status(400)
         .json({ error: "Only admin can perform this action" });
 
-    let withdawData = await Withdraw.findOne({ _id:withdrawId });
+    let withdawData = await Withdraw.findOne({ _id: withdrawId });
     if (withdawData) {
       let updateRequest = await Withdraw.findOneAndUpdate(
         { _id: { $eq: withdrawId } },
@@ -133,7 +155,7 @@ exports.rejectwithdraw = async (req, res, next) => {
         .status(400)
         .json({ error: "Only admin can perform this action" });
 
-    let withdawData = await Withdraw.findOne({ _id:withdrawId });
+    let withdawData = await Withdraw.findOne({ _id: withdrawId });
     if (withdawData) {
       let updateRequest = await Withdraw.findOneAndUpdate(
         { _id: { $eq: withdrawId } },

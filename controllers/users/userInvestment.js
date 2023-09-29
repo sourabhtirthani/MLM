@@ -5,7 +5,7 @@ const investment = require("../../models/Investment");
 const levelIncome = require("../../models/levelIncome");
 const { calclulateRewads } = require("../../helpers/calclulateRewards");
 const adminSettings = require("../../models/adminSettings");
-
+const transactions = require("../../models/transaction");
 //users investment
 exports.investment = async (req, res, next) => {
   try {
@@ -55,6 +55,14 @@ exports.investment = async (req, res, next) => {
       await User.updateOne({ userId }, { $set: updatedDATA });
     }
     await levelIncomecalclulator(userId, amount);
+    const alltransaction = new transactions({
+      userId,
+      Details:"Investment",
+      amount,
+      fromName: invester.username,
+      username: isExistsUserId.username,
+    });
+     await alltransaction.save();
     const invest = new investmentHistory({
       userId,
       investerId,
