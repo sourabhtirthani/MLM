@@ -135,6 +135,15 @@ router.post("/withdraw", [verifyToken,errorHandler]  ,userWithdraw.withdrawal);
 // withdraw history
 router.get("/withdrawHistory", [verifyToken,errorHandler]  ,userWithdraw.withdrwalHistory);
 
+// All withdraw history
+router.get("/allWithdrawHistory", [verifyToken,errorHandler]  ,userWithdraw.AllWithdrawRequests);
+
+// withdraw history
+router.post("/approveWithdraw", [verifyToken,errorHandler]  ,userWithdraw.approvewithdraw);
+
+// withdraw history
+router.post("/rejectWithdraw", [verifyToken,errorHandler]  ,userWithdraw.rejectwithdraw);
+
 //=========================================== USERS trnasactions ===========================================
 
 router.get("/trnasactions",[verifyToken,errorHandler], userTransactions.transactions);

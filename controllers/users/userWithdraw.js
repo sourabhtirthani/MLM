@@ -75,20 +75,29 @@ exports.withdrwalHistory = async (req, res, next) => {
   }
 };
 
+exports.AllWithdrawRequests = async (req, res, next) => {
+  try{
+    let result = await Withdraw.find({});
+    return res.status(200).json({result});
+  }catch(error){
+    next(error);
+  }
+}
+
 exports.approvewithdraw = async (req, res, next) => {
   try {
-    let { userId } = req.body;
+    let { withdrawId } = req.body;
     let user = req.user.user;
     if (user.role != 1)
       return res
         .status(400)
         .json({ error: "Only admin can perform this action" });
 
-    let userinfo = await Withdraw.findOne({ userId });
-    if (userinfo) {
+    let withdawData = await Withdraw.findOne({ _id:withdrawId });
+    if (withdawData) {
       let updateRequest = await Withdraw.findOneAndUpdate(
-        { _id: { $eq: userId } },
-        { $set: { status: 1 } }
+        { _id: { $eq: withdrawId } },
+        { $set: { isAccpected: 1 } }
       );
       if (updateRequest) {
         return res.status(200).json({ message: "Request Accpected" });
@@ -104,18 +113,18 @@ exports.approvewithdraw = async (req, res, next) => {
 
 exports.rejectwithdraw = async (req, res, next) => {
   try {
-    let { userId } = req.body;
+    let { withdrawId } = req.body;
     let user = req.user.user;
     if (user.role != 1)
       return res
         .status(400)
         .json({ error: "Only admin can perform this action" });
 
-    let userinfo = await Withdraw.findOne({ userId });
-    if (userinfo) {
+    let withdawData = await Withdraw.findOne({ _id:withdrawId });
+    if (withdawData) {
       let updateRequest = await Withdraw.findOneAndUpdate(
-        { _id: { $eq: userId } },
-        { $set: { status: 2 } }
+        { _id: { $eq: withdrawId } },
+        { $set: { isAccpected: 2 } }
       );
       if (updateRequest) {
         return res.status(200).json({ message: "Request Rejected" });
