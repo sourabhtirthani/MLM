@@ -6,6 +6,7 @@ const User = require("../../models/User");
 const sendMail = require("../../helpers/sendMail");
 const { validRegex } = require("../../constants");
 const { findOneAndUpdate } = require("../../models/Transfer");
+const OTP = require("../../models/Otp");
 
 // user login logic comes here
 exports.login = async (req, res,next) => {
@@ -333,5 +334,80 @@ exports.verifyOtp = async (req,res,next) => {
         }
     }catch(err){
         next(err);
+    }
+}
+
+// get all user information
+exports.totalUsers = async (req,res,next) => {
+    try{
+        let result = await User.find({});
+        let array = Array();
+        let j = 1;
+        for (let i = 0; i < result.length; i++) {
+          const createdAt = new Date(result[i].createdAt);
+          const formattedDate = createdAt.toLocaleDateString();
+          const formattedTime = createdAt.toLocaleTimeString();
+          array.push({
+            ...result[i]._doc,
+            id: j + i,
+            datetime: formattedDate + " " + formattedTime            
+          });
+        }
+        return res.status(200).json({result:array});
+    }catch(error){
+        next(error);
+    }
+}
+
+// send otp on email
+exports.sendMailOtp = async (req,res,next) => {
+    try{
+        let {email} = req.body;
+        if(!email) return res.status(400).json({error:"Please provide a valid email address"});
+        const otp = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+        let isExists = await OTP.findOne({email});
+        if(isExists){
+            
+            let update = await OTP.updateOne({"email":{$eq:email}},{$set:{"otp":otp}});
+            let { message } = require("../../templates/otp.js");
+            await sendMail('verification Mail', message(otp), email);
+            if(update){
+                return res.status(200).json({message:"Please check your mail"});
+            }else{
+                return res.status(400).json({error:"Internel Server Error"});
+            }
+        }else{
+            let insert = new OTP({email,otp});
+            let datasave = insert.save();
+            if(datasave){
+                let update = await OTP.updateOne({"email":{$eq:email}},{$set:{"otp":otp}});
+                let { message } = require("../../templates/otp.js");
+                return res.status(200).json({message:"Please check your mail"});
+            }else{
+                return res.status(400).json({error:"Internel Server Error"});
+            }            
+        }
+
+        
+    }catch(err){
+     next(err);
+    }
+}
+
+exports.verifyEmailOtp = async (req,res,next) => {
+    try{
+        let {otp,email} = req.body;
+        if(!otp) return res.status(400).json({error:"Please provide OTP"});
+        if(!email) return res.status(400).json({error:"Please provide email"});
+        let result = await OTP.findOne({email,otp});
+        if(!result) return res.status(400).json({error:"Invalid OTP"});
+        let update = await OTP.updateOne({"email":{$eq:email}},{$set:{"otp":""}});
+        if(update){
+            return res.status(200).json({message:"Verified OTP"});
+        }else{
+            return res.status(400).json({error:"Internel Server Error"});
+        }        
+    }catch(error){
+        next(error);
     }
 }

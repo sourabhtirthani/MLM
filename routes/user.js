@@ -68,6 +68,15 @@ router.post("/sendotp",errorHandler, userRegistration.sendOtp);
 // verify otp
 router.post("/verifyotp",errorHandler,userRegistration.verifyOtp);
 
+// send otp to mail
+router.post("/sendOtpMail",errorHandler,userRegistration.sendMailOtp);
+
+// verify mail otp
+router.post("/verifyMailOtp",errorHandler,userRegistration.verifyEmailOtp);
+
+// logout
+router.get("/totalUsers",errorHandler, userRegistration.totalUsers);
+
 // logout
 router.post("/logout", userRegistration.logout);
 

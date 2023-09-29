@@ -18,8 +18,11 @@ exports.fundTransfer = async (req, res) => {
         let isUserExists = await User.findOne({userId:user.userId});
         if(!isUserExists) return res.status(400).json({error:"Sender User not found!"});
 
-        let UserBalance = Number(isUserExists.mainWallet);
-        if(Number(amount) > Number(UserBalance)) return res.status(400).json({error:"Insufficient Fund for transfer"});
+        if(user.role != 1) {
+
+            let UserBalance = Number(isUserExists.mainWallet);
+            if(Number(amount) > Number(UserBalance)) return res.status(400).json({error:"Insufficient Fund for transfer"});
+        }
 
         let transferHisory = await Transfer({username:isUserExists.username,fromUserId:isUserExists.userId,toUserId:userId,amount});
         transferHisory = transferHisory.save();

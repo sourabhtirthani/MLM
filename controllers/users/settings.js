@@ -18,11 +18,18 @@ exports.settings = async (req, res, next) => {
     if (settings) {
       let update = await adminSettings.findOneAndUpdate({
         $set: { withdrawCommission, level1, level2, level3, ROI },
-      });
+      });      
       if (update) {
         return res.status(200).json({ message: "Data Updated" });
       } else {
-        return res.status(400).json({ error: "Internel Server Error" });
+        let result = await adminSettings({ withdrawCommission, level1, level2, level3, ROI });
+        let save = result.save();
+        if(save){
+          return res.status(200).json({ message: "Settings updated" });
+        }else{
+
+          return res.status(400).json({ error: "Internel Server Error" });
+        }
       }
     } else res.status(400).json({ message: "Request not found" });
   } catch (error) {
