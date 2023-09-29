@@ -155,7 +155,7 @@ router.post("/rejectWithdraw", [verifyToken,errorHandler]  ,userWithdraw.rejectw
 
 //=========================================== USERS trnasactions ===========================================
 
-router.get("/trnasactions",[verifyToken,errorHandler], userTransactions.transactions);
+router.post("/trnasactions",[verifyToken,errorHandler], userTransactions.transactions);
 
 //============================================User DashBoard===============================================
 
