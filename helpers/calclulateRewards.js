@@ -58,6 +58,7 @@ const CalclulateLevelIncome = async (userId) => {
 const calclulateMembers = async (userId) => {
   let members = {};
   let userInfo = await User.findOne({ userId });
+  console.log("userInfo",userInfo);
   if (userInfo.isInvested) {
     let member, member2, member3;
     let memberInfo, memberInfo2, memberInfo3;
