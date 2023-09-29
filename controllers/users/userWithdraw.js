@@ -156,6 +156,7 @@ exports.rejectwithdraw = async (req, res, next) => {
         .json({ error: "Only admin can perform this action" });
 
     let withdawData = await Withdraw.findOne({ _id: withdrawId });
+    console.log("withdawData", withdawData);
     if (withdawData) {
       let updateRequest = await Withdraw.findOneAndUpdate(
         { _id: { $eq: withdrawId } },
