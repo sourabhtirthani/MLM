@@ -113,7 +113,7 @@ router.post("/investmentHistory", [verifyToken,errorHandler], userInvestment.inv
 router.post("/fundTrnasfer", [verifyToken,errorHandler] ,userFundTransfer.fundTransfer);
 
 // fund Trnasfer History
-router.get("/fundTrnasferHistory",[verifyToken,errorHandler] , userFundTransfer.fundTransferHistory);
+router.post("/fundTrnasferHistory",[verifyToken,errorHandler] , userFundTransfer.fundTransferHistory);
 
 //=========================================== USERS SECTION ===========================================
 
@@ -134,7 +134,7 @@ router.get("/directTeam",[verifyToken,errorHandler] , userSection.directTeam);
 router.get("/roi-Income", userIncome.claclulateROI);
 
 // Level income
-router.get("/level-Income", [verifyToken,errorHandler],userIncome.claclulateLEVEL);
+router.post("/level-Income", [verifyToken,errorHandler],userIncome.claclulateLEVEL);
 
 //=========================================== USERS Withdraw ===========================================
 

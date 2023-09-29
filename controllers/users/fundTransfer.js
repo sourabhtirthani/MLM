@@ -58,8 +58,12 @@ exports.fundTransferHistory = async (req, res, next) => {
         // USER EXISTS CHECK
         let isExists = await User.findOne({userId:user.userId});
         if(!isExists) return res.status(400).json({error:"User not found!"});
-
-        let result = await Transfer.find({ $or: [{ fromUserId:user.userId }, { toUserId:user.userId }] }).sort({createdAt: 'desc'});
+        let { startDate, endDate, keywords } = req.body;
+        let result = await filterData(user.userId, startDate, endDate, keywords);
+        
+        if(!result){
+            result = await Transfer.find({ $or: [{ fromUserId:user.userId }, { toUserId:user.userId }] }).sort({createdAt: 'desc'});
+        }
         let array = Array();
         let j=1;
         for(let i=0;i<result.length;i++){    
@@ -74,3 +78,42 @@ exports.fundTransferHistory = async (req, res, next) => {
         next(error);
     }
 };
+
+const filterData = async (userId, startDate, endDate, keywords) => {
+    let query;  
+    if (startDate && endDate && keywords) {
+      const sdate = new Date(startDate);
+      const edate = new Date(endDate);
+      query = {
+        $and: [
+          { createdAt: { $gte: sdate, $lte: edate } },
+          {fromUserId:userId},
+          {$or : [{fromUserId:keywords},{toUserId:keywords},{username:keywords}]}          
+        ],
+      };
+    } else if (keywords && !startDate && !endDate) {
+      query = {
+        $and: [
+          {fromUserId:userId},
+          {$or : [{fromUserId:keywords},{toUserId:keywords},{username:keywords}]}            
+        ],
+      };    
+    } else if (!keywords && startDate && endDate) {
+      const sdate = new Date(startDate);
+  
+      const edate = new Date(endDate);
+      query = {
+        $and: [
+          { createdAt: { $gte: sdate, $lte: edate } },
+          {fromUserId:userId},          
+        ],
+      };
+    
+    }
+    if(!query){
+      query = {$or: [{ fromUserId:userId }, { toUserId:userId }]}
+    }
+    console.log(query);
+    let res = await Transfer.find(query);  
+    return res;
+  };
