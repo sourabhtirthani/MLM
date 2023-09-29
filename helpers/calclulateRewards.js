@@ -1,6 +1,6 @@
 const investment = require("../models/Investment");
 const User = require("../models/User");
-const withdraw = require("../models/withdrawal");
+const withdraw = require("../models/totalwithdraw");
 const levelIncome = require("../models/levelIncome");
 const adminSettings = require("../models/adminSettings");
 const moment = require("moment");
@@ -16,6 +16,7 @@ const calclulateRewadsPerDay = async (userId) => {
   if (dateDifference >= 1) {
     totalRewards = userInfo.amount * (Number(settings[0].ROI) / 100 / 30);
   }
+
   return totalRewards;
 };
 
@@ -31,7 +32,9 @@ const calclulateRewads = async (userId) => {
   let totalRewards = 0;
   totalRewards =
     userInfo.amount * (Number(settings[0].ROI) / 100 / 30) * dateDifference;
-  if (totalRewards) return totalRewards + Number(previousRewards);
+  let totalWithdraw = await WithDrawDetails(userId);
+  if (totalRewards)
+    return totalRewards + Number(previousRewards) - Number(totalWithdraw);
   else return 0;
 };
 
@@ -58,7 +61,6 @@ const CalclulateLevelIncome = async (userId) => {
 const calclulateMembers = async (userId) => {
   let members = {};
   let userInfo = await User.findOne({ userId });
-  console.log("userInfo",userInfo);
   if (userInfo.isInvested) {
     let member, member2, member3;
     let memberInfo, memberInfo2, memberInfo3;
@@ -145,7 +147,6 @@ const membersInformation = async (userId) => {
     for (let i = 0; i < userInfo.refferedTo.length; i++) {
       member = userInfo.refferedTo[i];
       memberInfo = await User.findOne({ userId: member });
-      // console.log(memberInfo);
       if (!memberInfo) continue;
       let array = Array();
       let j = i + 1;
@@ -172,7 +173,6 @@ const membersInformation = async (userId) => {
           }
         }
       }
-      console.log(array[0]);
       totalMember.push(array[0]);
       directTeam.push(memberInfo);
       if (memberInfo.isInvested) {
@@ -208,14 +208,12 @@ const membersInformation = async (userId) => {
 };
 
 const WithDrawDetails = async (userId) => {
-  let userInfo = await withdraw.find({ userId });
+  let userInfo = await withdraw.findOne({ userId });
+
   if (!userInfo) return 0;
   if (userInfo) {
-    let totalwithdraw = 0;
-    for (let i = 0; i < userInfo.length; i++) {
-      if (userInfo[i].isAccpected) totalwithdraw += userInfo[i].amount;
-    }
-    return totalwithdraw;
+    if (userInfo.amount) return userInfo.amount;
+    else return 0;
   } else return 0;
 };
 
