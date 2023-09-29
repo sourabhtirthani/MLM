@@ -2,12 +2,55 @@ const { json } = require("body-parser");
 const User = require("../../models/User");
 const Deposit = require("../../models/Deposits");
 
+const filterData = async (userId, startDate, endDate, status) => {
+  let query;  
+  if (startDate && endDate && status) {
+    const sdate = new Date(startDate);
+    const edate = new Date(endDate);
+    query = {
+      $and: [
+        { createdAt: { $gte: sdate, $lte: edate } },
+        { userId: userId },
+        { status: status }
+      ],
+    };
+  } else if (status && !startDate && !endDate) {
+    query = {
+      $and: [
+        { userId: userId},
+        { status:  Number(status) }        
+      ],
+    };    
+  } else if (!status && startDate && endDate) {
+    const sdate = new Date(startDate);
+
+    const edate = new Date(endDate);
+    query = {
+      $and: [
+        { createdAt: { $gte: sdate, $lte: edate } },
+        { userId: userId },
+      ],
+    };
+  
+  }
+  if(!query){
+    query = {userId}
+  }
+  let res = await Deposit.find(query);  
+  return res;
+};
+
 //all deposite comes here
 exports.allDeposite = async (req, res, next) => {
   try {
     let user = req.user.user;
     if (!user) return res.status(400).json({ error: "Please provide a token" });
-    let result = await Deposit.find({ userId: user.userId }).sort({createdAt: 'desc'});
+    let { startDate, endDate, status } = req.body;
+    let result = await filterData(user.userId, startDate, endDate, status);
+    console.log(result, " results ");
+    if(!result){
+      result = await Deposit.find({ userId: user.userId }).sort({createdAt: 'desc'});
+    }
     let array = Array();
     let j = 1;
     for (let i = 0; i < result.length; i++) {
@@ -20,10 +63,16 @@ exports.allDeposite = async (req, res, next) => {
   }
 };
 
+
+
 // GET ALL USER DEPOSITS
 exports.allUserDetails = async (req,res, next) => {
   try {
-    let result = await Deposit.find().sort({createdAt: 'desc'});
+    let { startDate, endDate, status } = req.body;
+    let result = await filterData("", startDate, endDate, status);
+    if(!result){
+    result = await Deposit.find().sort({createdAt: 'desc'});
+    }
     let array = Array();
     let j = 1;
     for (let i = 0; i < result.length; i++) {

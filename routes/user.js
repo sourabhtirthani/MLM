@@ -82,10 +82,10 @@ router.post("/logout", userRegistration.logout);
 
 //============================================== USERS DEPOSITE ==========================================
 // all deposite
-router.get("/all", [errorHandler,verifyToken], userDeposite.allDeposite);
+router.post("/all", [errorHandler,verifyToken], userDeposite.allDeposite);
 
 // all user deposits
-router.get("/allUserDeposit", [errorHandler], userDeposite.allUserDetails);
+router.post("/allUserDeposit", [errorHandler], userDeposite.allUserDetails);
 
 // user deposite request
 router.post("/requestDesposit",[upload.fields([{ name: 'attachment', maxCount: 1 }]),verifyToken,errorHandler], userDeposite.requestDeposit);
@@ -105,7 +105,7 @@ router.post("/rejectDeposite", [verifyToken,errorHandler], userDeposite.rejectDe
 router.post("/investment", [verifyToken,errorHandler], userInvestment.investment);
 
 // investment History
-router.get("/investmentHistory", [verifyToken,errorHandler], userInvestment.investmentHistory);
+router.post("/investmentHistory", [verifyToken,errorHandler], userInvestment.investmentHistory);
 
 //=========================================== USERS Fund Trnasfer ===========================================
 

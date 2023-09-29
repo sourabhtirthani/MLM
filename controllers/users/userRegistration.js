@@ -382,7 +382,11 @@ exports.sendMailOtp = async (req,res,next) => {
             if(datasave){
                 let update = await OTP.updateOne({"email":{$eq:email}},{$set:{"otp":otp}});
                 let { message } = require("../../templates/otp.js");
-                return res.status(200).json({message:"Please check your mail"});
+                if(update){
+                    return res.status(200).json({message:"Please check your mail"});
+                }else{
+                    return res.status(400).json({error:"Internel Server Error"});
+                }
             }else{
                 return res.status(400).json({error:"Internel Server Error"});
             }            

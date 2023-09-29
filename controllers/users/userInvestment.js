@@ -131,6 +131,7 @@ exports.investmentHistory = async (req, res) => {
   let user = req.user.user;
   let userId = user.userId;
   let { startDate, endDate, keywords } = req.body;
+  console.log(startDate, endDate, keywords)
   let result = await filterData(userId, startDate, endDate, keywords);
   if (!result) {
     result = await investmentHistory
@@ -148,9 +149,12 @@ exports.investmentHistory = async (req, res) => {
 const filterData = async (userId, startDate, endDate, keywords) => {
   let query;
   if (startDate && endDate && keywords) {
+    const sdate = new Date(startDate);
+
+    const edate = new Date(endDate);
     query = {
       $and: [
-        { createdAt: { $gte: startDate, $lte: endDate } },
+        { createdAt: { $gte: sdate, $lte: edate } },
         { userId: userId },
         { fromUsername: keywords },
         { toUsername: keywords },
@@ -158,21 +162,23 @@ const filterData = async (userId, startDate, endDate, keywords) => {
     };
   } else if (keywords && !startDate && !endDate) {
     query = {
-      $and: [
-        { userId: userId },
-        { fromUsername: keywords },
-        { toUsername: keywords },
+      $or: [
+        { userId: {$eq:userId} },
+        { fromUsername: {$eq : keywords} },
+        { toUsername: {$eq:keywords} },
       ],
     };
   } else if (!keywords && startDate && endDate) {
+    const sdate = new Date(startDate);
+
+    const edate = new Date(endDate);
     query = {
       $and: [
-        { createdAt: { $gte: startDate, $lte: endDate } },
+        { createdAt: { $gte: sdate, $lte: edate } },
         { userId: userId },
       ],
     };
   }
-
-  let res = await investmentHistory.find(query);
+  let res = await investmentHistory.find(query);  
   return res;
 };
