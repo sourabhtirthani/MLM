@@ -40,14 +40,48 @@ const filterData = async (userId, startDate, endDate, status) => {
   return res;
 };
 
+const filterAdminData = async (startDate, endDate, status) => {
+  let query;  
+  if (startDate && endDate && status) {
+    const sdate = new Date(startDate);
+    const edate = new Date(endDate);
+    query = {
+      $and: [
+        { createdAt: { $gte: sdate, $lte: edate } },        
+        { status: status }
+      ],
+    };
+  } else if (status && !startDate && !endDate) {
+    query = {
+      $and: [        
+        { status:  {$eq:Number(status)} }        
+      ],
+    };    
+  } else if (!status && startDate && endDate) {
+    const sdate = new Date(startDate);
+
+    const edate = new Date(endDate);
+    query = {
+      $and: [
+        { createdAt: { $gte: sdate, $lte: edate } },        
+      ],
+    };
+  
+  }
+  if(!query){
+    query = {}
+  }
+  let res = await Deposit.find(query);  
+  return res;
+};
+
 //all deposite comes here
 exports.allDeposite = async (req, res, next) => {
   try {
     let user = req.user.user;
     if (!user) return res.status(400).json({ error: "Please provide a token" });
     let { startDate, endDate, status } = req.body;
-    let result = await filterData(user.userId, startDate, endDate, status);
-    console.log(result, " results ");
+    let result = await filterData(user.userId, startDate, endDate, status); 
     if(!result){
       result = await Deposit.find({ userId: user.userId }).sort({createdAt: 'desc'});
     }
@@ -69,7 +103,7 @@ exports.allDeposite = async (req, res, next) => {
 exports.allUserDetails = async (req,res, next) => {
   try {
     let { startDate, endDate, status } = req.body;
-    let result = await filterData("", startDate, endDate, status);
+    let result = await filterAdminData(startDate, endDate, status);
     if(!result){
     result = await Deposit.find().sort({createdAt: 'desc'});
     }

@@ -14,7 +14,10 @@ exports.transactions = async (req, res, next) => {
     let array = Array();
     let j = 1;
     for (let i = 0; i < result.length; i++) {
-      array.push({ id: j + i, ...result[i]._doc });
+      const createdAt = new Date(result[i].createdAt);
+      const formattedDate = createdAt.toLocaleDateString();
+      const formattedTime = createdAt.toLocaleTimeString();
+      array.push({ id: j + i,datetime: formattedDate + " " + formattedTime, ...result[i]._doc });
     }
     res.status(200).json({ result: array });
   } catch (err) {
@@ -25,6 +28,7 @@ exports.transactions = async (req, res, next) => {
 
 const filterData = async (userId, startDate, endDate, keywords) => {
   let query;
+  console.log(userId, startDate, endDate, keywords)
   if (startDate && endDate && keywords) {
     const sdate = new Date(startDate);
 
@@ -33,16 +37,14 @@ const filterData = async (userId, startDate, endDate, keywords) => {
       $and: [
         { createdAt: { $gte: sdate, $lte: edate } },
         { userId: userId },
-        { fromName: keywords },
-        { username: keywords },
+        {$or :[{ fromName:  keywords  },{ username: keywords },{Details:keywords}]},      
       ],
     };
   } else if (keywords && !startDate && !endDate) {
     query = {
-      $or: [
+      $and: [
         { userId: { $eq: userId } },
-        { fromName: { $eq: keywords } },
-        { username: { $eq: keywords } },
+        {$or :[{ fromName:  keywords  },{ username: keywords },{Details:keywords}]},      
       ],
     };
   } else if (!keywords && startDate && endDate) {
@@ -53,6 +55,9 @@ const filterData = async (userId, startDate, endDate, keywords) => {
       $and: [{ createdAt: { $gte: sdate, $lte: edate } }, { userId: userId }],
     };
   }
-  let res = await transactions.find(query);
+  if(!query){
+    query  = { userId };
+  }
+  let res = await transactions.find(query).sort({ createdAt: "desc" });
   return res;
 };
