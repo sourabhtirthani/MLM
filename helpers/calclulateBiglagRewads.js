@@ -13,7 +13,8 @@ const calclulateRewardsForBigLag = async (userId) => {
     while (i < user.refferedTo.length) {
       member = user.refferedTo[i];
       memberInfo = await investment.findOne({ userId: member });
-      allmembers = await membersInformation(member);
+      allmembers = await membersInformation(member);      
+      if(allmembers){
       let j = 0;
       while (j < allmembers.length) {
         users = await investment.findOne({ userId: allmembers[j] });
@@ -22,9 +23,12 @@ const calclulateRewardsForBigLag = async (userId) => {
         }
         j++;
       }
+    }
+    if(memberInfo){
       sum += memberInfo.amount;
       totalAmount.push(sum);
       sum = 0;
+    }
 
       i++;
     }
