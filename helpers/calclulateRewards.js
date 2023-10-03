@@ -217,6 +217,26 @@ const WithDrawDetails = async (userId) => {
   } else return 0;
 };
 
+const totalROIForAdmin=async()=>{
+  const entries = await User.find({});
+  console.log("entries",entries[0].userId);
+  let sum=0;
+  for(let i=0;i<entries.length;i++){
+    sum+=await calclulateRewads(entries[0].userId);
+  }
+  if(sum) return sum;
+  else return 0;
+}
+const totalLEVELForAdmin=async()=>{
+  const entries = await User.find({});
+  console.log("entries",entries[0].userId);
+  let sum=0;
+  for(let i=0;i<entries.length;i++){
+    sum+=await CalclulateLevelIncome(entries[0].userId);
+  }
+  if(sum) return sum;
+  else return 0;
+}
 module.exports = {
   calclulateRewads,
   calclulateRewadsPerDay,
@@ -224,4 +244,6 @@ module.exports = {
   calclulateMembers,
   WithDrawDetails,
   membersInformation,
+  totalROIForAdmin,
+  totalLEVELForAdmin
 };

@@ -5,6 +5,8 @@ const {
   CalclulateLevelIncome,
   calclulateMembers,
   WithDrawDetails,
+  totalROIForAdmin,
+  totalLEVELForAdmin
 } = require("../../helpers/calclulateRewards");
 const calclulateRewardsForBigLag = require("../../helpers/calclulateBiglagRewads");
 const investment = require("../../models/Investment");
@@ -29,7 +31,8 @@ exports.userDashboard = async (req, res) => {
   } else {
     amount = totalinvestment.amount;
   }
-
+  let totalROIAdmin=await totalROIForAdmin();
+  let totalLEVELAdmin=await totalLEVELForAdmin();
   totalinvestment = amount;
   dashboardInfo["memberDeatils"] = memberDeatils;
   dashboardInfo["todayROI"] = todayROI;
@@ -39,6 +42,8 @@ exports.userDashboard = async (req, res) => {
   dashboardInfo["totalIncome"] = Number(totalRoI) + Number(levelIncome);
   dashboardInfo["totalinvestment"] = totalinvestment;
   dashboardInfo["rewardIncome"] = rewardIncome;
+  dashboardInfo["totalROIAdmin"]=totalROIAdmin;
+  dashboardInfo["totalLEVELAdmin"]=totalLEVELAdmin;
 
   res.status(200).json({ result: dashboardInfo });
 };
