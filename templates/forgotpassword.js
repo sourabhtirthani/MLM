@@ -61,7 +61,7 @@ const message = (email,token) => {
                           <tr>
                             <td style="padding-top: 0px;padding-bottom: 10px; padding-left: 15px; padding-right: 20px; text-align: left;"  valign="top" class="subTitle">
                               <h4 class="text" style=" color:#fff;font-family:'Nunito';font-size:16px;font-weight:400;font-style:normal;letter-spacing:normal;line-height:20px;text-transform:none;text-align:center;padding:0;margin:0">
-                                        <a href="#" target="_blink" style="color: #fff; text-decoration: none;">testing@gmail.com </a>
+                                        <a href="#" target="_blink" style="color: #fff; text-decoration: none;">tatrading99@gmail.com </a>
                                </h4>
                             </td>
                           </tr>         

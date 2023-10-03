@@ -116,7 +116,8 @@ exports.signup = async (req, res, next) => {
     if(!roleId) roleId = 0;
 
     let encrptPass = await encryptPassword(passwordd);
-    let userId = generateRandomID();
+    let userId = "TD"+generateRandom4DigitNumber();
+    console.log("userId",userId);
     let UserSave = new User({
       email,
       password: encrptPass,
@@ -136,7 +137,12 @@ exports.signup = async (req, res, next) => {
     next(error);
   }
 };
-
+function generateRandom4DigitNumber() {
+    // Generate a random number between 1000 and 9999
+    const min = 1000;
+    const max = 9999;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
 //user forgot password comes here
 exports.forgotPassword = async (req, res,next) => {
     try{
