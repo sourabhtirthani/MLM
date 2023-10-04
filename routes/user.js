@@ -54,7 +54,7 @@ router.post("/resetPassword", [errorHandler,verifyToken], userRegistration.reset
 router.post("/block",[errorHandler,verifyToken], userRegistration.blockUser)
 
 // edit user
-router.post("/editUser",[verifyToken,errorHandler], userRegistration.editUser)
+router.post("/editUser",[upload.fields([{ name: 'photo', maxCount: 1 }]),verifyToken,errorHandler], userRegistration.editUser)
 
 // user detail
 router.get("/userDetail",[errorHandler,verifyToken], userRegistration.userDetail);

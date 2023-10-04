@@ -262,37 +262,36 @@ exports.blockUser = async (req,res,next) => {
 exports.editUser = async(req,res,next) => {
     try{
         let user = req.user.user;
-        let {username,bankName,accounttype,accountNumber,IFSCCode,UsdtAddress} = req.body;
-        if(!username) return res.status(400).json({error:"Please provide a username"});
+        let {bankName,accounttype,accountNumber,IFSCCode,UsdtAddress} = req.body;        
+console.log(req.files)
+        if (Object.keys(req.files).length == 0) {
+            return res.status(400).json({ message: "Please provide a document" });
+          }
+      
+          if (
+            !req.files.photo[0].originalname.match(/\.(jpg|jpeg|png|doc|exl)$/)
+          ) {
+            return res
+              .status(400)
+              .json({
+                message:
+                  "Invalid file type. Only jpeg, jpg and png images are allowed in attachment",
+              });
+          }          
+
+
         let isExists = await User.findOne({userId:user.userId});
         if(!isExists) return res.status(400).json({error:"User Not Found"});
-        // if (
-        //     !req.files.attachment[0].originalname.match(/\.(jpg|jpeg|png|doc|exl)$/)
-        //   ) {
-        //     return res
-        //       .status(400)
-        //       .json({
-        //         message:
-        //           "Invalid file type. Only jpeg, jpg and png images are allowed in attachment",
-        //       });
-        //   }
-        //   let file1URL = `${"uploads/" + req.files.attachment[0].filename}`;
-        let isUserNameExist = await User.find({"username":{$eq:username,$ne:isExists.username}});
-        if(isUserNameExist.length > 0) return res.status(400).json({error:"Username Already Exists"});
-        console.log(bankName,
-            accounttype,
-            accountNumber,
-            IFSCCode,
-            UsdtAddress)
+        let file1URL = `${"uploads/" + req.files.photo[0].filename}`;
+        
         const updateData={
             bankName:bankName,
             accounttype:accounttype,
             accountNumber:accountNumber,
             IFSCCode:IFSCCode,
-            UsdtAddress: UsdtAddress
-            //photo:file1URL
-        }
-        console.log("user.userId",user.userId);
+            UsdtAddress: UsdtAddress,
+            photo:file1URL
+        }        
         //  await User.updateOne({"userId":{$eq:user.userId}},{$set:{updateData}});
          let update =await User.updateMany({ userId :user.userId}, { $set: updateData });
          console.log("update",update);
