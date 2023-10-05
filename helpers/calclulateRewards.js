@@ -174,7 +174,7 @@ const membersInformation = async (userId) => {
         }
       }
       totalMember.push(array[0]);
-      directTeam.push(memberInfo);
+      directTeam.push(array[0]);
       if (memberInfo.isInvested) {
         activeMember.push(memberInfo);
 

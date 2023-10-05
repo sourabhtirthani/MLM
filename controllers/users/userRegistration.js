@@ -116,7 +116,7 @@ exports.signup = async (req, res, next) => {
     if(!roleId) roleId = 0;
 
     let encrptPass = await encryptPassword(passwordd);
-    let userId = "TD"+generateRandom4DigitNumber();
+    let userId = "TA"+generateRandom4DigitNumber();
     console.log("userId",userId);
     let UserSave = new User({
       email,
@@ -168,7 +168,7 @@ exports.forgotPassword = async (req, res,next) => {
 //users reset password comes here
 exports.reset = async (req, res) => {
     try{
-        const { userId, token, password } = req.body;
+        const { userId, token, password,oldPassword } = req.body;
         if (!token) return res.status(400).json({ error: 'Please provide token' });
         if (!password) return res.status(400).json({ error: 'Please provide password' });
         let isExists = await User.findOne({userId});
@@ -184,6 +184,9 @@ exports.reset = async (req, res) => {
 
         // UPDATE NEW PASSWORD
         let encPass = await encryptPassword(password);
+        let oldPass = await encryptPassword(oldPassword);
+        if (oldPass!=isExists.password) return res.status(400).json({ error: "Old Password Must be same" });
+
         let update = await User.updateOne({"userId":{$eq:userId}},{$set:{"password":encPass,"token":""}});
 
         if(update){

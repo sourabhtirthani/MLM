@@ -9,7 +9,7 @@ const levelIncome = require("../../models/levelIncome");
 // post request for withdraw amout
 exports.withdrawal = async (req, res, next) => {
   try {
-    let { address, amount } = req.body;
+    let { amount } = req.body;
     let user = req.user.user;
     const userId = user.userId;
     const username = user.username;
@@ -19,6 +19,7 @@ exports.withdrawal = async (req, res, next) => {
     let isExistsUserId = await User.findOne({ userId });
     if (!isExistsUserId)
       return res.status(400).json({ error: "UserId Not Found" });
+    if(!isExistsUserId.UsdtAddress) return res.status(400).json({ error: "Before Withdraw Please update add your Usdt address in profile section" });
     let isInvested = await investment.findOne({ userId });
     if (!isInvested)
       return res.status(400).json({ error: "Investment Not found " });
@@ -47,7 +48,7 @@ exports.withdrawal = async (req, res, next) => {
       userId,
       username,
       amount,
-      address,
+      address:isExistsUserId.UsdtAddress,
     });
 
     let result = await newWithdraw.save();
