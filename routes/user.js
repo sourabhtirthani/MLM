@@ -168,4 +168,8 @@ router.post("/adminSettings",[verifyToken,errorHandler],admin.settings);
 
 router.get("/fetchSettings",[verifyToken,errorHandler],admin.fetchSetting)
 
+router.post("/adminNotice",[verifyToken,errorHandler],admin.News);
+
+router.get("/fetchNotice",[verifyToken,errorHandler],admin.fetchNotice)
+
 module.exports = router;
