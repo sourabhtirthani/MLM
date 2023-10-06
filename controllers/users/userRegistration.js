@@ -65,7 +65,7 @@ exports.adminsignup = async (req, res, next) => {
         return res.status(400).json({ error: "Please provide a Mobile" });
         
       if(!validRegex.test(email)) return res.status(400).json({error:"Please provide a valid email address"});
-        
+
   
       let isExists = await User.findOne({ $or: [{ email }, { username }] });
       if (isExists) return res.status(400).json({ error: "User already Exists" });
