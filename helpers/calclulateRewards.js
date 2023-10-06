@@ -61,7 +61,7 @@ const CalclulateLevelIncome = async (userId) => {
 const calclulateMembers = async (userId) => {
   let members = {};
   let userInfo = await User.findOne({ userId });
-  if (userInfo.isInvested) {
+  if (userInfo) {
     let member, member2, member3;
     let memberInfo, memberInfo2, memberInfo3;
     let totalMember = [],
@@ -100,7 +100,7 @@ const calclulateMembers = async (userId) => {
       }
       totalMember.push(array[0]);
       directTeam.push(memberInfo);
-      if (memberInfo.isInvested) {
+      if (memberInfo) {
         activeMember.push(member);
 
         for (let j = 0; j < memberInfo.refferedTo.length; j++) {
@@ -108,14 +108,14 @@ const calclulateMembers = async (userId) => {
           memberInfo2 = await User.findOne({ userId: member2 });
           if (!memberInfo2) continue;
           totalMember.push(member2);
-          if (memberInfo2.isInvested) {
+          if (memberInfo2) {
             activeMember.push(member2);
             for (let k = 0; k < memberInfo2.refferedTo.length; k++) {
               member3 = memberInfo2.refferedTo[k];
               memberInfo3 = await User.findOne({ userId: member3 });
               if (!memberInfo3) continue;
               totalMember.push(member3);
-              if (memberInfo3.isInvested) {
+              if (memberInfo3) {
                 activeMember.push(member3);
               } else deactiveMember.push(member3);
             }
@@ -135,7 +135,7 @@ const calclulateMembers = async (userId) => {
 const membersInformation = async (userId) => {
   let members = {};
   let userInfo = await User.findOne({ userId });
-  if (userInfo.isInvested) {
+  if (userInfo) {
     let member, member2, member3;
     let memberInfo, memberInfo2, memberInfo3;
     let totalMember = [],
@@ -175,7 +175,7 @@ const membersInformation = async (userId) => {
       }
       totalMember.push(array[0]);
       directTeam.push(array[0]);
-      if (memberInfo.isInvested) {
+      if (memberInfo) {
         activeMember.push(memberInfo);
 
         for (let j = 0; j < memberInfo.refferedTo.length; j++) {
@@ -183,14 +183,14 @@ const membersInformation = async (userId) => {
           memberInfo2 = await User.findOne({ userId: member2 });
           if (!memberInfo2) continue;
           totalMember.push(memberInfo2);
-          if (memberInfo2.isInvested) {
+          if (memberInfo2) {
             activeMember.push(memberInfo2);
             for (let k = 0; k < memberInfo2.refferedTo.length; k++) {
               member3 = memberInfo2.refferedTo[k];
               memberInfo3 = await User.findOne({ userId: member3 });
               if (!memberInfo3) continue;
               totalMember.push(memberInfo3);
-              if (memberInfo3.isInvested) {
+              if (memberInfo3) {
                 activeMember.push(memberInfo3);
               } else deactiveMember.push(memberInfo3);
             }

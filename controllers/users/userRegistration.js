@@ -66,14 +66,15 @@ exports.adminsignup = async (req, res, next) => {
         
       if(!validRegex.test(email)) return res.status(400).json({error:"Please provide a valid email address"});
         
-  
+      let isAdminExist = await User.findOne({role:1});
+      if(isAdminExist) return res.status(400).json({error:"Multiple admin not allowed"});
       let isExists = await User.findOne({ $or: [{ email }, { username }] });
       if (isExists) return res.status(400).json({ error: "User already Exists" });
       let roleId = role; 
       if(!roleId) roleId = 0;
   
       let encrptPass = await encryptPassword(passwordd);
-      let userId = generateRandomID();
+      let userId = "TA"+generateRandom4DigitNumber();
       let UserSave = new User({
         email,
         password: encrptPass,
