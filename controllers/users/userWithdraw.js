@@ -3,7 +3,7 @@ const User = require("../../models/User");
 const Withdraw = require("../../models/withdrawal");
 const investment = require("../../models/Investment");
 const totalWithdraw = require("../../models/totalwithdraw");
-const { calclulateRewads,CalclulateLevelIncome } = require("../../helpers/calclulateRewards");
+const { calclulateRewads,CalclulateLevelIncome,WithDrawDetails } = require("../../helpers/calclulateRewards");
 const transactions = require("../../models/transaction");
 const levelIncome = require("../../models/levelIncome");
 // post request for withdraw amout
@@ -23,10 +23,13 @@ exports.withdrawal = async (req, res, next) => {
     let isInvested = await investment.findOne({ userId });
     if (!isInvested)
       return res.status(400).json({ error: "Investment Not found " });
-
+  
     let rewards = await calclulateRewads(userId);
     let LevelRewards= await CalclulateLevelIncome(userId);
-
+    let totalWithdraw=await WithDrawDetails(userId)
+    let income=Number(rewards) + Number(LevelRewards)+Number(totalWithdraw);
+    if(!(income<2*Number(totalinvestment))) income=2*Number(totalinvestment);
+    
     if (Number(rewards)+ Number(LevelRewards)< amount)
       return res.status(400).json({
         error: "Can not withdraw more than rewards",

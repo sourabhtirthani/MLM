@@ -31,6 +31,8 @@ exports.userDashboard = async (req, res) => {
   } else {
     amount = totalinvestment.amount;
   }
+  let income=Number(totalRoI) + Number(levelIncome)+Number(withdrawDetail);
+  if(!(income<2*Number(totalinvestment))) income=2*Number(totalinvestment);
   let totalROIAdmin=await totalROIForAdmin();
   let totalLEVELAdmin=await totalLEVELForAdmin();
   totalinvestment = amount;
@@ -39,7 +41,7 @@ exports.userDashboard = async (req, res) => {
   dashboardInfo["totalRoI"] = totalRoI;
   dashboardInfo["levelIncome"] = levelIncome;
   dashboardInfo["withdrawDetail"] = withdrawDetail;
-  dashboardInfo["totalIncome"] = Number(totalRoI) + Number(levelIncome);
+  dashboardInfo["totalIncome"] = income;
   dashboardInfo["totalinvestment"] = totalinvestment;
   dashboardInfo["rewardIncome"] = rewardIncome;
   dashboardInfo["totalROIAdmin"]=totalROIAdmin;

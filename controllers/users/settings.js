@@ -1,4 +1,5 @@
 const adminSettings = require("../../models/adminSettings");
+const adminNotice = require("../../models/adminNews");
 exports.settings = async (req, res, next) => {
   try {
     let { withdrawCommission, level1, level2, level3, ROI } = req.body;
@@ -44,6 +45,51 @@ exports.fetchSetting = async (req, res, next) => {
     if (!user) return res.status(404).json({ error: "User Not Found" });
 
     let settings = await adminSettings.find();
+    if (settings) res.status(200).json({ result: settings });
+    else res.status(404).json({ result: "Data not Found" });
+  } catch (err) {
+    next(err);
+    console.log("err", err);
+  }
+};
+
+exports.News = async (req, res, next) => {
+  try {
+    let { notice, popup, timer, secondTimer } = req.body;
+    
+    let user = req.user.user;
+    if (user.role != 1)
+      return res
+        .status(400)
+        .json({ error: "Only admin can perform this action" })
+        
+      let update = await adminSettings.findOneAndUpdate({
+        $set: { notice, popup, timer, secondTimer },
+      });      
+      if (update) {
+        return res.status(200).json({ message: "Data Updated" });
+      } else {
+        let result = await adminSettings({ notice, popup, timer, secondTimer });
+        let save = result.save();
+        if(save){
+          return res.status(200).json({ message: "Notice updated" });
+        }else{
+
+          return res.status(400).json({ error: "Internel Server Error" });
+        }
+      }
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
+exports.fetchNotice = async (req, res, next) => {
+  try {
+    let user = req.user.user;
+    if (!user) return res.status(404).json({ error: "User Not Found" });
+
+    let settings = await adminNotice.find();
     if (settings) res.status(200).json({ result: settings });
     else res.status(404).json({ result: "Data not Found" });
   } catch (err) {

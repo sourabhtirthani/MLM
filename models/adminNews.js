@@ -1,16 +1,15 @@
 const mongoose = require("mongoose");
 
-const adminSettings = new mongoose.Schema(
+const adminNotice = new mongoose.Schema(
   {
-    withdrawCommission: { type: Number, require: true, default: 0 },
-    level1: { type: Number, require: true, default: 0 },
-    level2: { type: Number, require: true, default: 0 },
-    level3: { type: Number, require: true, default: 0 },
-    ROI: { type: Number, require: true, default: 0 },
+    popup: { type: String,  default: "" },
+    timer: { type: String, default: "" },
+    notice : { type: String,default: "" },
+    secondTime: { type: String,default: "" }
   },
   { timestamps: true }
 );
 
-const Settings = mongoose.model("settings", adminSettings);
+const notice = mongoose.model("Notice", adminNotice);
 
-module.exports = Settings;
+module.exports = notice;

@@ -32,9 +32,8 @@ const calclulateRewads = async (userId) => {
   let totalRewards = 0;
   totalRewards =
     userInfo.amount * (Number(settings[0].ROI) / 100 / 30) * dateDifference;
-  let totalWithdraw = await WithDrawDetails(userId);
   if (totalRewards)
-    return totalRewards + Number(previousRewards) - Number(totalWithdraw);
+    return totalRewards + Number(previousRewards) ;
   else return 0;
 };
 
