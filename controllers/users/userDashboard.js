@@ -6,7 +6,8 @@ const {
   WithDrawDetails,
   totalROIForAdmin,
   totalLEVELForAdmin,
-  totalInvestmentForAdmin
+  totalInvestmentForAdmin,
+  totalWithDrawForAdmin,
 } = require("../../helpers/calclulateRewards");
 const calclulateRewardsForBigLag = require("../../helpers/calclulateBiglagRewads");
 const investment = require("../../models/Investment");
@@ -27,7 +28,8 @@ exports.userDashboard = async (req, res) => {
   const withdrawDetail = await WithDrawDetails(userId);
   let totalinvestment = await investment.findOne({ userId });
   let rewardIncome = await calclulateRewardsForBigLag(userId);
-  let totalInvestmenttoShowAdmin= await totalInvestmentForAdmin();
+  let totalInvestmenttoShowAdmin = await totalInvestmentForAdmin();
+  let totalwithdrawtoShowAdmin = await totalWithDrawForAdmin();
   let amount = 0;
   if (!totalinvestment) {
     amount = 0;
@@ -70,6 +72,7 @@ exports.userDashboard = async (req, res) => {
   dashboardInfo["totalmembersInfoForadmin"] = allUser.length;
   dashboardInfo["allDeactiveMembers"] = allDeactiveMembers;
   dashboardInfo["allActiveMembers"] = allActiveMembers;
-  dashboardInfo["totalInvestmenttoShowAdmin"]=totalInvestmenttoShowAdmin;
+  dashboardInfo["totalInvestmenttoShowAdmin"] = totalInvestmenttoShowAdmin;
+  dashboardInfo["totalwithdrawtoShowAdmin"] = totalwithdrawtoShowAdmin;
   res.status(200).json({ result: dashboardInfo });
 };
