@@ -6,6 +6,7 @@ const {
   WithDrawDetails,
   totalROIForAdmin,
   totalLEVELForAdmin,
+  totalInvestmentForAdmin
 } = require("../../helpers/calclulateRewards");
 const calclulateRewardsForBigLag = require("../../helpers/calclulateBiglagRewads");
 const investment = require("../../models/Investment");
@@ -26,6 +27,7 @@ exports.userDashboard = async (req, res) => {
   const withdrawDetail = await WithDrawDetails(userId);
   let totalinvestment = await investment.findOne({ userId });
   let rewardIncome = await calclulateRewardsForBigLag(userId);
+  let totalInvestmenttoShowAdmin= await totalInvestmentForAdmin();
   let amount = 0;
   if (!totalinvestment) {
     amount = 0;
@@ -45,16 +47,12 @@ exports.userDashboard = async (req, res) => {
   //====================================================
 
   let allUser = await User.find({});
-  console.log(allUser.length);
   let allActiveMembers = Number(0);
   let allDeactiveMembers = Number(0);
-  for (let i = 0; i < allusers.length; i++) {
-    //console.log(allusers[i]);
-    // if (allusers[i].isInvested) allActiveMembers += 1;
-    // else allDeactiveMembers += 1;
+  for (let i = 0; i < Number(allUser.length); i++) {
+    if (allUser[i].isInvested) allActiveMembers += 1;
+    else allDeactiveMembers += 1;
   }
-  console.log("allDeactiveMembers", allDeactiveMembers);
-  console.log("allActiveMembers", allActiveMembers);
   let totalROIAdmin = await totalROIForAdmin();
   let totalLEVELAdmin = await totalLEVELForAdmin();
   totalinvestment = amount;
@@ -70,5 +68,8 @@ exports.userDashboard = async (req, res) => {
   dashboardInfo["totalLEVELAdmin"] = totalLEVELAdmin;
   dashboardInfo["avaibalance"] = newincome;
   dashboardInfo["totalmembersInfoForadmin"] = allUser.length;
+  dashboardInfo["allDeactiveMembers"] = allDeactiveMembers;
+  dashboardInfo["allActiveMembers"] = allActiveMembers;
+  dashboardInfo["totalInvestmenttoShowAdmin"]=totalInvestmenttoShowAdmin;
   res.status(200).json({ result: dashboardInfo });
 };

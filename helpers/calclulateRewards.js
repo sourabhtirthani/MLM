@@ -237,6 +237,19 @@ const totalLEVELForAdmin = async () => {
   if (sum) return sum;
   else return 0;
 };
+const totalInvestmentForAdmin=async()=>{
+  let total=await investment.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalAmount: { $sum: "$amount" }
+      }
+    }
+  ])
+  console.log("total",total);
+  if(total) return total.totalAmount;
+  else return 0;
+}
 module.exports = {
   calclulateRewads,
   calclulateRewadsPerDay,
@@ -246,4 +259,5 @@ module.exports = {
   membersInformation,
   totalROIForAdmin,
   totalLEVELForAdmin,
+  totalInvestmentForAdmin
 };

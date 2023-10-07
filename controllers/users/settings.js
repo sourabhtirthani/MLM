@@ -3,7 +3,7 @@ const adminNotice = require("../../models/adminNews");
 exports.settings = async (req, res, next) => {
   try {
     let { withdrawCommission, level1, level2, level3, ROI } = req.body;
-    
+
     let user = req.user.user;
     if (user.role != 1)
       return res
@@ -19,16 +19,21 @@ exports.settings = async (req, res, next) => {
     if (settings) {
       let update = await adminSettings.findOneAndUpdate({
         $set: { withdrawCommission, level1, level2, level3, ROI },
-      });      
+      });
       if (update) {
         return res.status(200).json({ message: "Data Updated" });
       } else {
-        let result = await adminSettings({ withdrawCommission, level1, level2, level3, ROI });
+        let result = await adminSettings({
+          withdrawCommission,
+          level1,
+          level2,
+          level3,
+          ROI,
+        });
         let save = result.save();
-        if(save){
+        if (save) {
           return res.status(200).json({ message: "Settings updated" });
-        }else{
-
+        } else {
           return res.status(400).json({ error: "Internel Server Error" });
         }
       }
@@ -55,29 +60,30 @@ exports.fetchSetting = async (req, res, next) => {
 
 exports.News = async (req, res, next) => {
   try {
-    let { notice, popup, timer, secondTimer } = req.body;
-    
+    let { notice, timer } = req.body;
+    if (!notice)
+      return res.status(400).json({ error: "Please provide a Notice" });
+    if (!timer) return res.status(400).json({ error: "Please provide a Time" });
     let user = req.user.user;
     if (user.role != 1)
       return res
         .status(400)
-        .json({ error: "Only admin can perform this action" })
-        
-      let update = await adminSettings.findOneAndUpdate({
-        $set: { notice, popup, timer, secondTimer },
-      });      
-      if (update) {
-        return res.status(200).json({ message: "Data Updated" });
-      } else {
-        let result = await adminSettings({ notice, popup, timer, secondTimer });
-        let save = result.save();
-        if(save){
-          return res.status(200).json({ message: "Notice updated" });
-        }else{
+        .json({ error: "Only admin can perform this action" });
 
-          return res.status(400).json({ error: "Internel Server Error" });
-        }
+    let update = await adminNotice.findOneAndUpdate({
+      $set: { notice, timer },
+    });
+    if (update) {
+      return res.status(200).json({ message: "Data Updated" });
+    } else {
+      let result = await adminNotice({ notice, timer });
+      let save = result.save();
+      if (save) {
+        return res.status(200).json({ message: "Notice updated" });
+      } else {
+        return res.status(400).json({ error: "Internel Server Error" });
       }
+    }
   } catch (error) {
     console.log(error);
     next(error);
@@ -86,9 +92,6 @@ exports.News = async (req, res, next) => {
 
 exports.fetchNotice = async (req, res, next) => {
   try {
-    let user = req.user.user;
-    if (!user) return res.status(404).json({ error: "User Not Found" });
-
     let settings = await adminNotice.find();
     if (settings) res.status(200).json({ result: settings });
     else res.status(404).json({ result: "Data not Found" });
