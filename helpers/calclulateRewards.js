@@ -11,12 +11,11 @@ const calclulateRewadsPerDay = async (userId) => {
   const currentDate = moment();
   let settings = await adminSettings.find();
   // Calculate the difference in days
-  const dateDifference = currentDate.diff(moment(userInfo.updatedAt), "days");
+  const dateDifference = currentDate.diff(moment(userInfo.createdAt));
   let totalRewards = 0;
   if (dateDifference >= 1) {
     totalRewards = userInfo.amount * (Number(settings[0].ROI) / 100 / 30);
   }
-
   return totalRewards;
 };
 
@@ -28,7 +27,7 @@ const calclulateRewads = async (userId) => {
   let settings = await adminSettings.find();
   let previousRewards = userInfo.rewards;
   if (!previousRewards) previousRewards = 0;
-  const dateDifference = currentDate.diff(moment(userInfo.updatedAt), "days");
+  const dateDifference = currentDate.diff(moment(userInfo.createdAt), "hours");
   let totalRewards = 0;
   totalRewards =
     userInfo.amount * (Number(settings[0].ROI) / 100 / 30) * dateDifference;
@@ -135,7 +134,6 @@ const calclulateMembers = async (userId) => {
 const membersInformation = async (userId) => {
   let members = {};
   let userInfo = await User.findOne({ userId });
-  console.log("userInfo", userInfo);
   if (userInfo) {
     let member, member2, member3;
     let memberInfo, memberInfo2, memberInfo3;
@@ -213,7 +211,7 @@ const membersInformation = async (userId) => {
 
 const WithDrawDetails = async (userId) => {
   let userInfo = await withdraw.findOne({ userId });
-
+  console.log("userInfo", userInfo);
   if (!userInfo) return 0;
   if (userInfo) {
     if (userInfo.amount) return userInfo.amount;
@@ -223,7 +221,6 @@ const WithDrawDetails = async (userId) => {
 
 const totalROIForAdmin = async () => {
   const entries = await User.find({});
-  console.log("entries", entries[0].userId);
   let sum = 0;
   for (let i = 0; i < entries.length; i++) {
     sum += await calclulateRewads(entries[0].userId);
@@ -233,7 +230,6 @@ const totalROIForAdmin = async () => {
 };
 const totalLEVELForAdmin = async () => {
   const entries = await User.find({});
-  console.log("entries", entries[0].userId);
   let sum = 0;
   for (let i = 0; i < entries.length; i++) {
     sum += await CalclulateLevelIncome(entries[0].userId);

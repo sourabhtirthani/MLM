@@ -1,4 +1,3 @@
-
 const {
   calclulateRewads,
   calclulateRewadsPerDay,
@@ -6,7 +5,7 @@ const {
   calclulateMembers,
   WithDrawDetails,
   totalROIForAdmin,
-  totalLEVELForAdmin
+  totalLEVELForAdmin,
 } = require("../../helpers/calclulateRewards");
 const calclulateRewardsForBigLag = require("../../helpers/calclulateBiglagRewads");
 const investment = require("../../models/Investment");
@@ -31,10 +30,21 @@ exports.userDashboard = async (req, res) => {
   } else {
     amount = totalinvestment.amount;
   }
-  let income=Number(totalRoI) + Number(levelIncome)+Number(withdrawDetail);
-  if(!(income<2*Number(totalinvestment))) income=2*Number(totalinvestment);
-  let totalROIAdmin=await totalROIForAdmin();
-  let totalLEVELAdmin=await totalLEVELForAdmin();
+  let income = Number(totalRoI) + Number(levelIncome) + Number(withdrawDetail);
+  if (!(income < Number(2) * Number(amount))) {
+    income = Number(2) * Number(amount);
+  }
+  console.log("income", income);
+
+  //===============================================
+  let newincome = Number(totalRoI) + Number(levelIncome);
+  console.log("income", newincome);
+  if (!(newincome < 2 * Number(amount)))
+    newincome = 2 * Number(amount) - Number(withdrawDetail);
+  else newincome = Number(newincome) - Number(withdrawDetail);
+
+  let totalROIAdmin = await totalROIForAdmin();
+  let totalLEVELAdmin = await totalLEVELForAdmin();
   totalinvestment = amount;
   dashboardInfo["memberDeatils"] = memberDeatils;
   dashboardInfo["todayROI"] = todayROI;
@@ -44,8 +54,9 @@ exports.userDashboard = async (req, res) => {
   dashboardInfo["totalIncome"] = income;
   dashboardInfo["totalinvestment"] = totalinvestment;
   dashboardInfo["rewardIncome"] = rewardIncome;
-  dashboardInfo["totalROIAdmin"]=totalROIAdmin;
-  dashboardInfo["totalLEVELAdmin"]=totalLEVELAdmin;
+  dashboardInfo["totalROIAdmin"] = totalROIAdmin;
+  dashboardInfo["totalLEVELAdmin"] = totalLEVELAdmin;
+  dashboardInfo["avaibalance"] = newincome;
 
   res.status(200).json({ result: dashboardInfo });
 };

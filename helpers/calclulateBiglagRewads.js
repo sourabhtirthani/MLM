@@ -13,34 +13,34 @@ const calclulateRewardsForBigLag = async (userId) => {
     while (i < user.refferedTo.length) {
       member = user.refferedTo[i];
       memberInfo = await investment.findOne({ userId: member });
-      allmembers = await membersInformation(member);      
-      if(allmembers){
-      let j = 0;
-      while (j < allmembers.length) {
-        users = await investment.findOne({ userId: allmembers[j] });
-        if (users) {
-          if (users.amount) sum += users.amount;
+      allmembers = await membersInformation(member);
+      if (allmembers) {
+        let j = 0;
+        while (j < allmembers.length) {
+          users = await investment.findOne({ userId: allmembers[j] });
+          if (users) {
+            if (users.amount) sum += users.amount;
+          }
+          j++;
         }
-        j++;
       }
-    }
-    if(memberInfo){
-      sum += memberInfo.amount;
-      totalAmount.push(sum);
-      sum = 0;
-    }
+      if (memberInfo) {
+        sum += memberInfo.amount;
+        totalAmount.push(sum);
+        sum = 0;
+      }
 
       i++;
     }
     let newAmount = totalAmount.sort((a, b) => b - a);
-    let highest = -Infinity;
-    let secondHighest = -Infinity;
-    let sumAll = 0;
-
+    console.log("totalAmount", totalAmount);
+    let highest = Number(0);
+    let secondHighest = Number(0);
+    let sumAll = Number(0);
+    console.log("newAmount.length", newAmount.length);
     for (let i = 0; i < newAmount.length; i++) {
       const currentValue = newAmount[i];
-      sumAll += currentValue;
-
+      sumAll += Number(currentValue);
       if (currentValue > highest) {
         secondHighest = highest;
         highest = currentValue;
@@ -49,9 +49,9 @@ const calclulateRewardsForBigLag = async (userId) => {
       }
     }
     let Totalrewards =
-      highest * 0.6 +
-      secondHighest * 0.2 +
-      (sumAll - highest - secondHighest) * 0.2;
+      Number(Number(highest) * 0.6) +
+      Number(secondHighest) * 0.2 +
+      (Number(sumAll) - Number(highest) - Number(secondHighest)) * 0.2;
     if (Totalrewards) return Totalrewards;
     else return 0;
   } else return 0;
