@@ -36,19 +36,20 @@ exports.withdrawal = async (req, res, next) => {
     let LevelRewards = await CalclulateLevelIncome(userId);
     let totalWithdraw = await WithDrawDetails(userId);
     let income = Number(rewards) + Number(LevelRewards);
-    console.log("income",income);
-    if (!(income < 2 * Number(isInvested.amount))) income = 2 * Number(isInvested.amount)-Number(totalWithdraw);
-    else income= Number(income)-Number(totalWithdraw);
+    console.log("income", income);
+    if (!(income < 2 * Number(isInvested.amount)))
+      income = 2 * Number(isInvested.amount) - Number(totalWithdraw);
+    else income = Number(income) - Number(totalWithdraw);
     if (income < amount)
       return res.status(400).json({
         error: "Can not withdraw more than rewards",
       });
-      // let avaiBalance=Number(income)-Number(totalWithdraw);
-      // if(avaiBalance<amount){
-      //   return res.status(400).json({
-      //     error: "Can not withdraw more than rewards",
-      //   });
-      // }
+    // let avaiBalance=Number(income)-Number(totalWithdraw);
+    // if(avaiBalance<amount){
+    //   return res.status(400).json({
+    //     error: "Can not withdraw more than rewards",
+    //   });
+    // }
     let tWithdraw = await totalWithdraww.findOne({ userId });
     console.log("tWithdraw", tWithdraw);
     if (tWithdraw) {
@@ -59,7 +60,6 @@ exports.withdrawal = async (req, res, next) => {
       };
       await totalWithdraww.updateOne({ userId }, { $set: updatedDATA });
     } else {
-
       const newWith = new totalWithdraww({
         userId,
         amount,
@@ -188,16 +188,22 @@ exports.rejectwithdraw = async (req, res, next) => {
       return res
         .status(400)
         .json({ error: "Only admin can perform this action" });
-
+    let amount = 0;
     let withdawData = await Withdraw.findOne({ _id: withdrawId });
-    console.log("withdawData", withdawData);
+    let withdData = await totalWithdraww.findOne({
+      userId: withdawData.userId,
+    });
+    if (withdData.amount) amount = withdData.amount;
     if (withdawData) {
       let updateRequest = await Withdraw.findOneAndUpdate(
         { _id: { $eq: withdrawId } },
         { $set: { isAccpected: 2 } }
       );
       if (updateRequest) {
-        
+        let returnRequest = await totalWithdraww.findOneAndUpdate(
+          { userId: withdawData.userId },
+          { $set: { amount: Number(amount) - Number(withdData.amount) } }
+        );
         return res.status(200).json({ message: "Request Rejected" });
       } else {
         return res.status(400).json({ error: "Internel Server Error" });
