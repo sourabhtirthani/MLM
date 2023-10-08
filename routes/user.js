@@ -170,6 +170,6 @@ router.get("/fetchSettings",[verifyToken,errorHandler],admin.fetchSetting)
 
 router.post("/adminNotice",[verifyToken,errorHandler],admin.News);
 
-router.get("/fetchNotice",[verifyToken,errorHandler],admin.fetchNotice)
+router.get("/fetchNotice",errorHandler,admin.fetchNotice)
 
 module.exports = router;

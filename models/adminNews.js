@@ -2,10 +2,8 @@ const mongoose = require("mongoose");
 
 const adminNotice = new mongoose.Schema(
   {
-    popup: { type: String,  default: "" },
     timer: { type: String, default: "" },
-    notice : { type: String,default: "" },
-    secondTime: { type: String,default: "" }
+    notice : { type: String,default: "" }
   },
   { timestamps: true }
 );
