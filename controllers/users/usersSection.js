@@ -38,7 +38,16 @@ exports.directTeam = async (req, res) => {
 
 exports.roiTableForAllUsers = async (req, res) => {
   let members = await totalROIOfALLUSERS();
-  res.status(200).json({ result: members });
+  let array = Array();
+    let j = 1;    
+    members.map((ele,i)=>{
+          array.push({
+            ...ele,
+            id: j + i,        
+          });
+    })
+    console.log(array);
+  res.status(200).json({ result: array });
 };
 
 exports.allusersForAdmin = async (req, res) => {

@@ -130,10 +130,10 @@ router.get("/inactiveUsers",[verifyToken,errorHandler] , userSection.inActiveUse
 router.get("/directTeam",[verifyToken,errorHandler] , userSection.directTeam);
 
 // Roi Table for all users
-router.get('/roiTable',[verifyToken,errorHandler],userSection.roiTableForAllUsers);
+router.get('/roiTable',[errorHandler],userSection.roiTableForAllUsers);
 
 //
-router.get('/allUserForAdmin',[verifyToken,errorHandler],userSection.allusersForAdmin);
+// router.get('/allUserForAdmin',[verifyToken,errorHandler],userSection.allusersForAdmin);
 //=========================================== USERS INCOME ===========================================
 
 //ROI income
