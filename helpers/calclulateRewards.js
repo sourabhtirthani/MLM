@@ -3,7 +3,7 @@ const User = require("../models/User");
 const withdraw = require("../models/totalwithdraw");
 const levelIncome = require("../models/levelIncome");
 const adminSettings = require("../models/adminSettings");
-const calclulateRewardsForBigLag=require('./calclulateBiglagRewads')
+const calclulateRewardsForBigLag = require("./calclulateBiglagRewads");
 const moment = require("moment");
 
 const calclulateRewadsPerDay = async (userId) => {
@@ -23,16 +23,14 @@ const calclulateRewadsPerDay = async (userId) => {
 const calclulateRewads = async (userId) => {
   let userInfo = await investment.findOne({ userId });
   if (!userInfo) return 0;
-  const currentDate = moment();
+  let diffDays = await DateDiffer(userInfo.createdAt);
   // Calculate the difference in days
   let settings = await adminSettings.find();
   let previousRewards = userInfo.rewards;
   if (!previousRewards) previousRewards = 0;
-  const dateDifference = currentDate.diff(moment(userInfo.createdAt),"days");
-  const diffDays =(dateDifference / (1000 * 60 * 60 * 24));
   let totalRewards = 0;
   totalRewards =
-    userInfo.amount * (Number(settings[0].ROI) / 100 / 30) * (diffDays+1);
+    userInfo.amount * (Number(settings[0].ROI) / 100 / 30) * diffDays;
   if (totalRewards) return totalRewards + Number(previousRewards);
   else return 0;
 };
@@ -263,29 +261,45 @@ const totalWithDrawForAdmin = async () => {
   else return 0;
 };
 
-const totalROIOfALLUSERS=async ()=>{
+const totalROIOfALLUSERS = async () => {
   let allUser = await User.find({});
-  
-  let allData=[],memberInfo={},totalROI=Number(0),levelIncome=Number(0),totalWithdawal=Number(0);
-  for(let i=0;i<allUser.length;i++){
-    memberInfo["userId"]=allUser[i].userId
-    totalROI=await calclulateRewads(allUser[i].userId)
-    levelIncome=await CalclulateLevelIncome(allUser[i].userId);
-    totalWithdawal=await WithDrawDetails(allUser[i].userId)
-    memberInfo["totalROI"]=totalROI;
-    memberInfo["levelIncome"]=levelIncome;
-    memberInfo["totalIncome"]= Number(totalROI)+Number(levelIncome);
-    memberInfo["rewardIncome"]=await calclulateRewardsForBigLag(allUser[i].userId);
-    memberInfo["avaiBalance"]=await calclulateAvaiableBalance(totalROI,levelIncome,totalWithdawal,allUser[i].userId)
-    memberInfo["totalWithdraw"]=totalWithdawal;
+
+  let allData = [],
+    memberInfo = {},
+    totalROI = Number(0),
+    levelIncome = Number(0),
+    totalWithdawal = Number(0);
+  for (let i = 0; i < allUser.length; i++) {
+    memberInfo["userId"] = allUser[i].userId;
+    totalROI = await calclulateRewads(allUser[i].userId);
+    levelIncome = await CalclulateLevelIncome(allUser[i].userId);
+    totalWithdawal = await WithDrawDetails(allUser[i].userId);
+    memberInfo["totalROI"] = totalROI;
+    memberInfo["levelIncome"] = levelIncome;
+    memberInfo["totalIncome"] = Number(totalROI) + Number(levelIncome);
+    memberInfo["rewardIncome"] = await calclulateRewardsForBigLag(
+      allUser[i].userId
+    );
+    memberInfo["avaiBalance"] = await calclulateAvaiableBalance(
+      totalROI,
+      levelIncome,
+      totalWithdawal,
+      allUser[i].userId
+    );
+    memberInfo["totalWithdraw"] = totalWithdawal;
     allData.push(memberInfo);
-    memberInfo={};
+    memberInfo = {};
   }
   // console.log("allData",allData);
   return allData;
-}
+};
 
-const calclulateAvaiableBalance=async(totalRoI,levelIncome,withdrawDetail,userId)=>{
+const calclulateAvaiableBalance = async (
+  totalRoI,
+  levelIncome,
+  withdrawDetail,
+  userId
+) => {
   let totalinvestment = await investment.findOne({ userId });
   let amount = 0;
   if (!totalinvestment) {
@@ -297,9 +311,30 @@ const calclulateAvaiableBalance=async(totalRoI,levelIncome,withdrawDetail,userId
   if (!(newincome < 2 * Number(amount)))
     newincome = 2 * Number(amount) - Number(withdrawDetail);
   else newincome = Number(newincome) - Number(withdrawDetail);
-  
+
   return newincome;
-}
+};
+
+const DateDiffer = async (datesting) => {
+  let year, month, day, oldYear, oldMonth, OldDate;
+  const date = moment(datesting);
+  const currentDate = moment();
+  // Get the year, month, and date
+  oldYear = date.year();
+  oldMonth = date.month() + 1;
+  OldDate = date.date();
+  year = currentDate.year();
+  month = currentDate.month() + 1;
+  day = currentDate.date();
+  let sum =
+    Number(year) -
+    Number(oldYear) +
+    (Number(month) - Number(oldMonth)) +
+    (Number(day) - Number(OldDate));
+
+    if(sum) return sum;
+    else return 0
+};
 module.exports = {
   calclulateRewads,
   calclulateRewadsPerDay,
@@ -311,5 +346,5 @@ module.exports = {
   totalLEVELForAdmin,
   totalInvestmentForAdmin,
   totalWithDrawForAdmin,
-  totalROIOfALLUSERS
+  totalROIOfALLUSERS,
 };

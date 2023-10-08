@@ -131,6 +131,9 @@ router.get("/directTeam",[verifyToken,errorHandler] , userSection.directTeam);
 
 // Roi Table for all users
 router.get('/roiTable',[verifyToken,errorHandler],userSection.roiTableForAllUsers);
+
+//
+router.get('/allUserForAdmin',[verifyToken,errorHandler],userSection.allusersForAdmin);
 //=========================================== USERS INCOME ===========================================
 
 //ROI income
