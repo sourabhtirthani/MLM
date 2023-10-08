@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const adminNotice = new mongoose.Schema(
   {
     timer: { type: String, default: "" },
-    notice : { type: String,default: "" }
+    notice: { type: String, default: "" },
   },
   { timestamps: true }
 );

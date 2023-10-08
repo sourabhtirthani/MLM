@@ -2,8 +2,12 @@ const { json } = require("body-parser");
 const User = require("../../models/User");
 const Withdraw = require("../../models/withdrawal");
 const investment = require("../../models/Investment");
-const totalWithdraw = require("../../models/totalwithdraw");
-const { calclulateRewads,CalclulateLevelIncome,WithDrawDetails } = require("../../helpers/calclulateRewards");
+const totalWithdraww = require("../../models/totalwithdraw");
+const {
+  calclulateRewads,
+  CalclulateLevelIncome,
+  WithDrawDetails,
+} = require("../../helpers/calclulateRewards");
 const transactions = require("../../models/transaction");
 const levelIncome = require("../../models/levelIncome");
 // post request for withdraw amout
@@ -19,29 +23,44 @@ exports.withdrawal = async (req, res, next) => {
     let isExistsUserId = await User.findOne({ userId });
     if (!isExistsUserId)
       return res.status(400).json({ error: "UserId Not Found" });
-    if(!isExistsUserId.UsdtAddress) return res.status(400).json({ error: "Before Withdraw Please update add your Usdt address in profile section" });
+    if (!isExistsUserId.UsdtAddress)
+      return res.status(400).json({
+        error:
+          "Before Withdraw Please update add your Usdt address in profile section",
+      });
     let isInvested = await investment.findOne({ userId });
     if (!isInvested)
       return res.status(400).json({ error: "Investment Not found " });
-  
+
     let rewards = await calclulateRewads(userId);
-    let LevelRewards= await CalclulateLevelIncome(userId);
-    let totalWithdraw=await WithDrawDetails(userId)
-    let income=Number(rewards) + Number(LevelRewards)+Number(totalWithdraw);
-    if(!(income<2*Number(totalinvestment))) income=2*Number(totalinvestment);
-    
-    if (Number(rewards)+ Number(LevelRewards)< amount)
+    let LevelRewards = await CalclulateLevelIncome(userId);
+    let totalWithdraw = await WithDrawDetails(userId);
+    let income = Number(rewards) + Number(LevelRewards);
+    console.log("income",income);
+    if (!(income < 2 * Number(isInvested.amount))) income = 2 * Number(isInvested.amount)-Number(totalWithdraw);
+    else income= Number(income)-Number(totalWithdraw);
+    if (income < amount)
       return res.status(400).json({
         error: "Can not withdraw more than rewards",
       });
-    let tWithdraw = await totalWithdraw.findOne({ userId });
+      // let avaiBalance=Number(income)-Number(totalWithdraw);
+      // if(avaiBalance<amount){
+      //   return res.status(400).json({
+      //     error: "Can not withdraw more than rewards",
+      //   });
+      // }
+    let tWithdraw = await totalWithdraww.findOne({ userId });
+    console.log("tWithdraw", tWithdraw);
     if (tWithdraw) {
+      let newAmount = Number(0);
+      if (Number(tWithdraw.amount)) newAmount = Number(tWithdraw.amount);
       const updatedDATA = {
-        amount: Number(tWithdraw.amount) + Number(amount),
+        amount: Number(newAmount) + Number(amount),
       };
-      await totalWithdraw.updateOne({ userId }, { $set: updatedDATA });
+      await totalWithdraww.updateOne({ userId }, { $set: updatedDATA });
     } else {
-      const newWith = new totalWithdraw({
+
+      const newWith = new totalWithdraww({
         userId,
         amount,
       });
@@ -51,7 +70,7 @@ exports.withdrawal = async (req, res, next) => {
       userId,
       username,
       amount,
-      address:isExistsUserId.UsdtAddress,
+      address: isExistsUserId.UsdtAddress,
     });
 
     let result = await newWithdraw.save();
@@ -178,6 +197,7 @@ exports.rejectwithdraw = async (req, res, next) => {
         { $set: { isAccpected: 2 } }
       );
       if (updateRequest) {
+        
         return res.status(200).json({ message: "Request Rejected" });
       } else {
         return res.status(400).json({ error: "Internel Server Error" });
@@ -231,14 +251,26 @@ const filterAdminData = async (startDate, endDate, keywords) => {
     const edate = new Date(endDate);
     query = {
       $and: [
-        { createdAt: { $gte: sdate, $lte: edate } },        
-        { $or: [{ username: keywords },{ userId: keywords }, { address: keywords }] },
+        { createdAt: { $gte: sdate, $lte: edate } },
+        {
+          $or: [
+            { username: keywords },
+            { userId: keywords },
+            { address: keywords },
+          ],
+        },
       ],
     };
   } else if (keywords && !startDate && !endDate) {
     query = {
-      $and: [        
-        { $or: [{ username: keywords }, { address: keywords },{ userId: keywords },] },
+      $and: [
+        {
+          $or: [
+            { username: keywords },
+            { address: keywords },
+            { userId: keywords },
+          ],
+        },
       ],
     };
   } else if (!keywords && startDate && endDate) {
@@ -250,9 +282,9 @@ const filterAdminData = async (startDate, endDate, keywords) => {
     };
   }
   if (!query) {
-    query = { };
+    query = {};
   }
-console.log(query)
+  console.log(query);
   let res = await Withdraw.find(query).sort({ createdAt: "desc" });
   return res;
 };

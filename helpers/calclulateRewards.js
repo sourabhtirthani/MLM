@@ -3,6 +3,7 @@ const User = require("../models/User");
 const withdraw = require("../models/totalwithdraw");
 const levelIncome = require("../models/levelIncome");
 const adminSettings = require("../models/adminSettings");
+const calclulateRewardsForBigLag=require('./calclulateBiglagRewads')
 const moment = require("moment");
 
 const calclulateRewadsPerDay = async (userId) => {
@@ -11,12 +12,11 @@ const calclulateRewadsPerDay = async (userId) => {
   const currentDate = moment();
   let settings = await adminSettings.find();
   // Calculate the difference in days
-  const dateDifference = currentDate.diff(moment(userInfo.updatedAt), "days");
+  const dateDifference = currentDate.diff(moment(userInfo.createdAt));
   let totalRewards = 0;
   if (dateDifference >= 1) {
     totalRewards = userInfo.amount * (Number(settings[0].ROI) / 100 / 30);
   }
-
   return totalRewards;
 };
 
@@ -28,12 +28,12 @@ const calclulateRewads = async (userId) => {
   let settings = await adminSettings.find();
   let previousRewards = userInfo.rewards;
   if (!previousRewards) previousRewards = 0;
-  const dateDifference = currentDate.diff(moment(userInfo.updatedAt), "days");
+  const dateDifference = currentDate.diff(moment(userInfo.createdAt),"days");
+  const diffDays =(dateDifference / (1000 * 60 * 60 * 24));
   let totalRewards = 0;
   totalRewards =
-    userInfo.amount * (Number(settings[0].ROI) / 100 / 30) * dateDifference;
-  if (totalRewards)
-    return totalRewards + Number(previousRewards) ;
+    userInfo.amount * (Number(settings[0].ROI) / 100 / 30) * (diffDays+1);
+  if (totalRewards) return totalRewards + Number(previousRewards);
   else return 0;
 };
 
@@ -100,27 +100,29 @@ const calclulateMembers = async (userId) => {
       totalMember.push(array[0]);
       directTeam.push(memberInfo);
       if (memberInfo) {
-        activeMember.push(member);
-
+        if (memberInfo.isInvested) activeMember.push(member);
+        else deactiveMember.push(member);
         for (let j = 0; j < memberInfo.refferedTo.length; j++) {
           member2 = memberInfo.refferedTo[j];
           memberInfo2 = await User.findOne({ userId: member2 });
           if (!memberInfo2) continue;
           totalMember.push(member2);
           if (memberInfo2) {
-            activeMember.push(member2);
+            if (memberInfo2.isInvested) activeMember.push(member2);
+            else deactiveMember.push(member2);
             for (let k = 0; k < memberInfo2.refferedTo.length; k++) {
               member3 = memberInfo2.refferedTo[k];
               memberInfo3 = await User.findOne({ userId: member3 });
               if (!memberInfo3) continue;
               totalMember.push(member3);
               if (memberInfo3) {
-                activeMember.push(member3);
-              } else deactiveMember.push(member3);
+                if (memberInfo3.isInvested) activeMember.push(member3);
+                else deactiveMember.push(member3);
+              }
             }
-          } else deactiveMember.push(member2);
+          }
         }
-      } else deactiveMember.push(member);
+      }
     }
     members["totalMembers"] = totalMember;
     members["activeMembers"] = activeMember;
@@ -175,7 +177,8 @@ const membersInformation = async (userId) => {
       totalMember.push(array[0]);
       directTeam.push(array[0]);
       if (memberInfo) {
-        activeMember.push(memberInfo);
+        if (memberInfo.isInvested) activeMember.push(memberInfo);
+        else deactiveMember.push(memberInfo);
 
         for (let j = 0; j < memberInfo.refferedTo.length; j++) {
           member2 = memberInfo.refferedTo[j];
@@ -183,19 +186,21 @@ const membersInformation = async (userId) => {
           if (!memberInfo2) continue;
           totalMember.push(memberInfo2);
           if (memberInfo2) {
-            activeMember.push(memberInfo2);
+            if (memberInfo2.isInvested) activeMember.push(memberInfo2);
+            else deactiveMember.push(memberInfo2);
             for (let k = 0; k < memberInfo2.refferedTo.length; k++) {
               member3 = memberInfo2.refferedTo[k];
               memberInfo3 = await User.findOne({ userId: member3 });
               if (!memberInfo3) continue;
               totalMember.push(memberInfo3);
               if (memberInfo3) {
-                activeMember.push(memberInfo3);
-              } else deactiveMember.push(memberInfo3);
+                if (memberInfo3.isInvested) activeMember.push(memberInfo3);
+                else deactiveMember.push(memberInfo3);
+              }
             }
-          } else deactiveMember.push(memberInfo2);
+          }
         }
-      } else deactiveMember.push(memberInfo);
+      }
     }
     members["totalMembers"] = totalMember;
     members["activeMembers"] = activeMember;
@@ -208,7 +213,6 @@ const membersInformation = async (userId) => {
 
 const WithDrawDetails = async (userId) => {
   let userInfo = await withdraw.findOne({ userId });
-
   if (!userInfo) return 0;
   if (userInfo) {
     if (userInfo.amount) return userInfo.amount;
@@ -216,25 +220,85 @@ const WithDrawDetails = async (userId) => {
   } else return 0;
 };
 
-const totalROIForAdmin=async()=>{
+const totalROIForAdmin = async () => {
   const entries = await User.find({});
-  console.log("entries",entries[0].userId);
-  let sum=0;
-  for(let i=0;i<entries.length;i++){
-    sum+=await calclulateRewads(entries[0].userId);
+  let sum = 0;
+  for (let i = 0; i < entries.length; i++) {
+    sum += await calclulateRewads(entries[0].userId);
   }
-  if(sum) return sum;
+  if (sum) return sum;
   else return 0;
+};
+const totalLEVELForAdmin = async () => {
+  const entries = await User.find({});
+  let sum = 0;
+  for (let i = 0; i < entries.length; i++) {
+    sum += await CalclulateLevelIncome(entries[0].userId);
+  }
+  if (sum) return sum;
+  else return 0;
+};
+const totalInvestmentForAdmin = async () => {
+  let total = await investment.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalAmount: { $sum: "$amount" },
+      },
+    },
+  ]);
+  if (total) return total[0].totalAmount;
+  else return 0;
+};
+const totalWithDrawForAdmin = async () => {
+  let total = await withdraw.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalAmount: { $sum: "$amount" },
+      },
+    },
+  ]);
+  if (total) return total[0].totalAmount;
+  else return 0;
+};
+
+const totalROIOfALLUSERS=async ()=>{
+  let allUser = await User.find({});
+  
+  let allData=[],memberInfo={},totalROI=Number(0),levelIncome=Number(0),totalWithdawal=Number(0);
+  for(let i=0;i<allUser.length;i++){
+    memberInfo["userId"]=allUser[i].userId
+    totalROI=await calclulateRewads(allUser[i].userId)
+    levelIncome=await CalclulateLevelIncome(allUser[i].userId);
+    totalWithdawal=await WithDrawDetails(allUser[i].userId)
+    memberInfo["totalROI"]=totalROI;
+    memberInfo["levelIncome"]=levelIncome;
+    memberInfo["totalIncome"]= Number(totalROI)+Number(levelIncome);
+    memberInfo["rewardIncome"]=await calclulateRewardsForBigLag(allUser[i].userId);
+    memberInfo["avaiBalance"]=await calclulateAvaiableBalance(totalROI,levelIncome,totalWithdawal,allUser[i].userId)
+    memberInfo["totalWithdraw"]=totalWithdawal;
+    allData.push(memberInfo);
+    memberInfo={};
+  }
+  // console.log("allData",allData);
+  return allData;
 }
-const totalLEVELForAdmin=async()=>{
-  const entries = await User.find({});
-  console.log("entries",entries[0].userId);
-  let sum=0;
-  for(let i=0;i<entries.length;i++){
-    sum+=await CalclulateLevelIncome(entries[0].userId);
+
+const calclulateAvaiableBalance=async(totalRoI,levelIncome,withdrawDetail,userId)=>{
+  let totalinvestment = await investment.findOne({ userId });
+  let amount = 0;
+  if (!totalinvestment) {
+    amount = 0;
+  } else {
+    amount = totalinvestment.amount;
   }
-  if(sum) return sum;
-  else return 0;
+  let newincome = Number(totalRoI) + Number(levelIncome);
+  if (!(newincome < 2 * Number(amount)))
+    newincome = 2 * Number(amount) - Number(withdrawDetail);
+  else newincome = Number(newincome) - Number(withdrawDetail);
+  
+  return newincome;
 }
 module.exports = {
   calclulateRewads,
@@ -244,5 +308,8 @@ module.exports = {
   WithDrawDetails,
   membersInformation,
   totalROIForAdmin,
-  totalLEVELForAdmin
+  totalLEVELForAdmin,
+  totalInvestmentForAdmin,
+  totalWithDrawForAdmin,
+  totalROIOfALLUSERS
 };

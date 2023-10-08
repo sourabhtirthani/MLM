@@ -8,6 +8,6 @@ const withdraw = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Totalwithdraw = mongoose.model("totalWithdraw", withdraw);
+const totalwithdraww = mongoose.model("totalWithdraw", withdraw);
 
-module.exports = Totalwithdraw;
+module.exports = totalwithdraww;

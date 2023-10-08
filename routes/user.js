@@ -128,6 +128,9 @@ router.get("/inactiveUsers",[verifyToken,errorHandler] , userSection.inActiveUse
 
 // direct Team
 router.get("/directTeam",[verifyToken,errorHandler] , userSection.directTeam);
+
+// Roi Table for all users
+router.get('/roiTable',[verifyToken,errorHandler],userSection.roiTableForAllUsers);
 //=========================================== USERS INCOME ===========================================
 
 //ROI income
@@ -170,6 +173,6 @@ router.get("/fetchSettings",[verifyToken,errorHandler],admin.fetchSetting)
 
 router.post("/adminNotice",[verifyToken,errorHandler],admin.News);
 
-router.get("/fetchNotice",errorHandler,admin.fetchNotice)
+router.get("/fetchNotice",[errorHandler],admin.fetchNotice)
 
 module.exports = router;
