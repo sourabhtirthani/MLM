@@ -153,7 +153,6 @@ exports.signup = async (req, res, next) => {
 
     let encrptPass = await encryptPassword(passwordd);
     let userId = "TA" + generateRandom4DigitNumber();
-    console.log("userId", userId);
     let UserSave = new User({
       email,
       password: encrptPass,
@@ -189,6 +188,7 @@ exports.forgotPassword = async (req, res, next) => {
     if (!email)
       return res.status(400).json({ error: "Please provide a email" });
     let isExists = await User.findOne({ email });
+    console.log("isExists", isExists);
     if (!isExists) return res.status(400).json({ error: "User Not Found" });
     let token = Math.random().toString(36).substr(2);
     let update = await User.updateOne(
@@ -213,6 +213,7 @@ exports.forgotPassword = async (req, res, next) => {
 //users reset password comes here
 exports.reset = async (req, res) => {
   try {
+    console.log("hello");
     const { userId, token, password } = req.body;
     if (!token) return res.status(400).json({ error: "Please provide token" });
     if (!password)
@@ -234,7 +235,7 @@ exports.reset = async (req, res) => {
 
     // UPDATE NEW PASSWORD
     let encPass = await encryptPassword(password);
-    
+
     let update = await User.updateOne(
       { userId: { $eq: userId } },
       { $set: { password: encPass, token: "" } }
@@ -255,7 +256,8 @@ exports.reset = async (req, res) => {
 exports.resetPassword = async (req, res, next) => {
   try {
     let userId = req.user.user.userId;
-    const { password,oldPassword } = req.body;
+    console.log("hello");
+    const { password, oldPassword } = req.body;
     if (!userId)
       return res.status(400).json({ error: "Please provide userId" });
     if (!password)
@@ -276,11 +278,10 @@ exports.resetPassword = async (req, res, next) => {
         .json({ error: "Password should be different from old password" });
 
     // UPDATE NEW PASSWORD
-    let oldPass = await encryptPassword(oldPassword);
-    console.log("oldPass", oldPass);
-    console.log("isExists.password", isExists.password);
-    if (oldPass != isExists.password)
-      return res.status(400).json({ error: "Old Password Must be same" });
+    let resultForcheck=await decryptPassword(oldPassword,isExists.password);
+  
+    if (!resultForcheck)
+      return res.status(400).json({ error: "Old Password Must not be same" });
 
     let encPass = await encryptPassword(password);
     let update = await User.updateOne(
