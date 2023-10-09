@@ -197,6 +197,7 @@ exports.rejectwithdraw = async (req, res, next) => {
         { $set: { isAccpected: 2 } }
       );
       if (updateRequest) {
+        
         return res.status(200).json({ message: "Request Rejected" });
       } else {
         return res.status(400).json({ error: "Internel Server Error" });

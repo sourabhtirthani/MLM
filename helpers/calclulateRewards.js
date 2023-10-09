@@ -3,6 +3,7 @@ const User = require("../models/User");
 const withdraw = require("../models/totalwithdraw");
 const levelIncome = require("../models/levelIncome");
 const adminSettings = require("../models/adminSettings");
+const calclulateRewardsForBigLag=require('./calclulateBiglagRewads')
 const moment = require("moment");
 
 const calclulateRewadsPerDay = async (userId) => {
@@ -27,10 +28,11 @@ const calclulateRewads = async (userId) => {
   let settings = await adminSettings.find();
   let previousRewards = userInfo.rewards;
   if (!previousRewards) previousRewards = 0;
-  const dateDifference = currentDate.diff(moment(userInfo.createdAt), "hours");
+  const dateDifference = currentDate.diff(moment(userInfo.createdAt),"days");
+  const diffDays =(dateDifference / (1000 * 60 * 60 * 24));
   let totalRewards = 0;
   totalRewards =
-    userInfo.amount * (Number(settings[0].ROI) / 100 / 30) * dateDifference;
+    userInfo.amount * (Number(settings[0].ROI) / 100 / 30) * (diffDays+1);
   if (totalRewards) return totalRewards + Number(previousRewards);
   else return 0;
 };
@@ -211,7 +213,6 @@ const membersInformation = async (userId) => {
 
 const WithDrawDetails = async (userId) => {
   let userInfo = await withdraw.findOne({ userId });
-  console.log("userInfo", userInfo);
   if (!userInfo) return 0;
   if (userInfo) {
     if (userInfo.amount) return userInfo.amount;
@@ -246,7 +247,6 @@ const totalInvestmentForAdmin = async () => {
       },
     },
   ]);
-  console.log("total", total);
   if (total) return total[0].totalAmount;
   else return 0;
 };
@@ -259,10 +259,47 @@ const totalWithDrawForAdmin = async () => {
       },
     },
   ]);
-  console.log("total", total);
   if (total) return total[0].totalAmount;
   else return 0;
 };
+
+const totalROIOfALLUSERS=async ()=>{
+  let allUser = await User.find({});
+  
+  let allData=[],memberInfo={},totalROI=Number(0),levelIncome=Number(0),totalWithdawal=Number(0);
+  for(let i=0;i<allUser.length;i++){
+    memberInfo["userId"]=allUser[i].userId
+    totalROI=await calclulateRewads(allUser[i].userId)
+    levelIncome=await CalclulateLevelIncome(allUser[i].userId);
+    totalWithdawal=await WithDrawDetails(allUser[i].userId)
+    memberInfo["totalROI"]=totalROI;
+    memberInfo["levelIncome"]=levelIncome;
+    memberInfo["totalIncome"]= Number(totalROI)+Number(levelIncome);
+    memberInfo["rewardIncome"]=await calclulateRewardsForBigLag(allUser[i].userId);
+    memberInfo["avaiBalance"]=await calclulateAvaiableBalance(totalROI,levelIncome,totalWithdawal,allUser[i].userId)
+    memberInfo["totalWithdraw"]=totalWithdawal;
+    allData.push(memberInfo);
+    memberInfo={};
+  }
+  // console.log("allData",allData);
+  return allData;
+}
+
+const calclulateAvaiableBalance=async(totalRoI,levelIncome,withdrawDetail,userId)=>{
+  let totalinvestment = await investment.findOne({ userId });
+  let amount = 0;
+  if (!totalinvestment) {
+    amount = 0;
+  } else {
+    amount = totalinvestment.amount;
+  }
+  let newincome = Number(totalRoI) + Number(levelIncome);
+  if (!(newincome < 2 * Number(amount)))
+    newincome = 2 * Number(amount) - Number(withdrawDetail);
+  else newincome = Number(newincome) - Number(withdrawDetail);
+  
+  return newincome;
+}
 module.exports = {
   calclulateRewads,
   calclulateRewadsPerDay,
@@ -273,5 +310,6 @@ module.exports = {
   totalROIForAdmin,
   totalLEVELForAdmin,
   totalInvestmentForAdmin,
-  totalWithDrawForAdmin
+  totalWithDrawForAdmin,
+  totalROIOfALLUSERS
 };

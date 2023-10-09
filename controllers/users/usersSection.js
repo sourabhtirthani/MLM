@@ -1,4 +1,4 @@
-const { membersInformation } = require("../../helpers/calclulateRewards");
+const { membersInformation,totalROIOfALLUSERS } = require("../../helpers/calclulateRewards");
 
 //fetch all users
 exports.allusers = async (req, res) => {
@@ -30,3 +30,8 @@ exports.directTeam = async (req, res) => {
   let members = await membersInformation(userId);
   res.status(200).json({ result: members.directTeam });
 };
+
+exports.roiTableForAllUsers=async(req,res)=>{
+  let members = await totalROIOfALLUSERS();
+  res.status(200).json({ result: members });
+}

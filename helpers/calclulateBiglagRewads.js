@@ -33,11 +33,9 @@ const calclulateRewardsForBigLag = async (userId) => {
       i++;
     }
     let newAmount = totalAmount.sort((a, b) => b - a);
-    console.log("totalAmount", totalAmount);
     let highest = Number(0);
     let secondHighest = Number(0);
     let sumAll = Number(0);
-    console.log("newAmount.length", newAmount.length);
     for (let i = 0; i < newAmount.length; i++) {
       const currentValue = newAmount[i];
       sumAll += Number(currentValue);
