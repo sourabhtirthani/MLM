@@ -24,16 +24,14 @@ exports.investment = async (req, res, next) => {
       return res.status(400).json({ error: "UserId Not Found" });
     if (!isExistsInvesterId)
       return res.status(400).json({ error: "invester Id Not Found" });
-    if (
-      Number(amount) > 100 &&
-      Number(isExistsInvesterId.mainWallet) <= Number(amount)
-    ) {
-      return res.status(400).json({
-        error:
-          "Investment Amount Must be Grater than 100 And less than equal to investment amount",
-      });
+    if (invester.role == 0) {
+      if (Number(isExistsInvesterId.mainWallet) <= Number(amount)) {
+        return res.status(400).json({
+          error:
+            "Investment Amount Must be Grater than 100 And less than equal to investment amount",
+        });
+      }
     }
-
     let isAlreadyInvested = await investment.findOne({ userId });
     if (isAlreadyInvested) {
       let rewards = await calclulateRewads(userId);
@@ -57,12 +55,12 @@ exports.investment = async (req, res, next) => {
     await levelIncomecalclulator(userId, amount);
     const alltransaction = new transactions({
       userId,
-      Details:"Investment",
+      Details: "Investment",
       amount,
       fromName: invester.username,
       username: isExistsUserId.username,
     });
-     await alltransaction.save();
+    await alltransaction.save();
     const invest = new investmentHistory({
       userId,
       investerId,
@@ -139,7 +137,7 @@ exports.investmentHistory = async (req, res) => {
   let user = req.user.user;
   let userId = user.userId;
   let { startDate, endDate, keywords } = req.body;
-  console.log(startDate, endDate, keywords)
+  console.log(startDate, endDate, keywords);
   let result = await filterData(userId, startDate, endDate, keywords);
   if (!result) {
     result = await investmentHistory
@@ -171,9 +169,9 @@ const filterData = async (userId, startDate, endDate, keywords) => {
   } else if (keywords && !startDate && !endDate) {
     query = {
       $or: [
-        { userId: {$eq:userId} },
-        { fromUsername: {$eq : keywords} },
-        { toUsername: {$eq:keywords} },
+        { userId: { $eq: userId } },
+        { fromUsername: { $eq: keywords } },
+        { toUsername: { $eq: keywords } },
       ],
     };
   } else if (!keywords && startDate && endDate) {
@@ -181,12 +179,9 @@ const filterData = async (userId, startDate, endDate, keywords) => {
 
     const edate = new Date(endDate);
     query = {
-      $and: [
-        { createdAt: { $gte: sdate, $lte: edate } },
-        { userId: userId },
-      ],
+      $and: [{ createdAt: { $gte: sdate, $lte: edate } }, { userId: userId }],
     };
   }
-  let res = await investmentHistory.find(query);  
+  let res = await investmentHistory.find(query);
   return res;
 };

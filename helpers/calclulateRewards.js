@@ -12,9 +12,10 @@ const calclulateRewadsPerDay = async (userId) => {
   const currentDate = moment();
   let settings = await adminSettings.find();
   // Calculate the difference in days
-  const dateDifference = currentDate.diff(moment(userInfo.createdAt));
+  let diffDays = await DateDiffer(userInfo.createdAt);
+  console.log("diffDays", diffDays);
   let totalRewards = 0;
-  if (dateDifference >= 1) {
+  if (diffDays >= 1) {
     totalRewards = userInfo.amount * (Number(settings[0].ROI) / 100 / 30);
   }
   return totalRewards;
@@ -31,7 +32,8 @@ const calclulateRewads = async (userId) => {
   let totalRewards = 0;
   totalRewards =
     userInfo.amount * (Number(settings[0].ROI) / 100 / 30) * diffDays;
-  if (totalRewards) return totalRewards + Number(previousRewards);
+  if (Number(totalRewards) + Number(previousRewards))
+    return Number(totalRewards) + Number(previousRewards);
   else return 0;
 };
 
@@ -271,6 +273,7 @@ const totalROIOfALLUSERS = async () => {
     totalWithdawal = Number(0);
   for (let i = 0; i < allUser.length; i++) {
     memberInfo["userId"] = allUser[i].userId;
+    memberInfo["username"] = allUser[i].username;
     totalROI = await calclulateRewads(allUser[i].userId);
     levelIncome = await CalclulateLevelIncome(allUser[i].userId);
     totalWithdawal = await WithDrawDetails(allUser[i].userId);
@@ -326,14 +329,32 @@ const DateDiffer = async (datesting) => {
   year = currentDate.year();
   month = currentDate.month() + 1;
   day = currentDate.date();
+
   let sum =
     Number(year) -
     Number(oldYear) +
     (Number(month) - Number(oldMonth)) +
     (Number(day) - Number(OldDate));
+  console.log("sum", sum);
+  if (sum) return sum;
+  else return 0;
+};
 
-    if(sum) return sum;
-    else return 0
+const DateDifferForPerDay = async (datesting) => {
+  let year, month, day, oldYear, oldMonth, OldDate;
+  const date = moment(datesting);
+  const currentDate = moment();
+  // Get the year, month, and date
+  oldYear = date.year();
+  oldMonth = date.month() + 1;
+  OldDate = date.date();
+  year = currentDate.year();
+  month = currentDate.month() + 1;
+  day = currentDate.date();
+  let sum = Number(day) - Number(OldDate);
+
+  if (sum > 0) return sum;
+  else return 0;
 };
 module.exports = {
   calclulateRewads,
