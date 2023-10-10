@@ -56,7 +56,6 @@ exports.userDashboard = async (req, res) => {
     if (allUser[i].isInvested) allActiveMembers += 1;
     else allDeactiveMembers += 1;
   }
-  totalROIOfALLUSERS();
   let totalROIAdmin = await totalROIForAdmin();
   let totalLEVELAdmin = await totalLEVELForAdmin();
   totalinvestment = amount;
