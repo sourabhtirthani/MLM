@@ -25,6 +25,7 @@ const calclulateRewads = async (userId) => {
   let userInfo = await investment.findOne({ userId });
   if (!userInfo) return 0;
   let diffDays = await DateDiffer(userInfo.createdAt);
+  console.log("diffDays", diffDays);
   // Calculate the difference in days
   let settings = await adminSettings.find();
   let previousRewards = userInfo.rewards;
@@ -318,9 +319,10 @@ const calclulateAvaiableBalance = async (
   return newincome;
 };
 
-const DateDiffer = async (datesting) => {
+const DateDifferOld = async (datesting) => {
   let year, month, day, oldYear, oldMonth, OldDate;
   const date = moment(datesting);
+  console.log("datesting", datesting);
   const currentDate = moment();
   // Get the year, month, and date
   oldYear = date.year();
@@ -329,7 +331,9 @@ const DateDiffer = async (datesting) => {
   year = currentDate.year();
   month = currentDate.month() + 1;
   day = currentDate.date();
-
+  console.log(
+    `oldYear --- ${oldYear},year---- ${year},oldMonth------${oldMonth}, month-----${month},OldDate-----${OldDate},day-----${day}`
+  );
   let sum =
     Number(year) -
     Number(oldYear) +
@@ -340,20 +344,16 @@ const DateDiffer = async (datesting) => {
   else return 0;
 };
 
-const DateDifferForPerDay = async (datesting) => {
-  let year, month, day, oldYear, oldMonth, OldDate;
-  const date = moment(datesting);
+const DateDiffer = async (datesting) => {
+  const oneDay = 24 * 60 * 60 * 1000; // hours * minutes * seconds * milliseconds
   const currentDate = moment();
-  // Get the year, month, and date
-  oldYear = date.year();
-  oldMonth = date.month() + 1;
-  OldDate = date.date();
-  year = currentDate.year();
-  month = currentDate.month() + 1;
-  day = currentDate.date();
-  let sum = Number(day) - Number(OldDate);
+  // Convert the input date-times to UTC
+  const utcDateTime1 = new Date(datesting).getTime();
+  const utcDateTime2 = new Date(currentDate).getTime();
 
-  if (sum > 0) return sum;
+  // Calculate the difference in days, including the time part
+  const diffDays = Math.floor((utcDateTime2 - utcDateTime1) / oneDay);
+  if (diffDays > 0) return diffDays;
   else return 0;
 };
 module.exports = {
